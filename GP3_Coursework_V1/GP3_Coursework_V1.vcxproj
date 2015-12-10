@@ -79,6 +79,7 @@
     <ClCompile Include="cMaterial.cpp" />
     <ClCompile Include="cModel.cpp" />
     <ClCompile Include="cModelLoader.cpp" />
+    <ClCompile Include="ControllerHandler.cpp" />
     <ClCompile Include="cPlayer.cpp" />
     <ClCompile Include="cPyramid.cpp" />
     <ClCompile Include="cShapes.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="cMaterial.h" />
     <ClInclude Include="cModel.h" />
     <ClInclude Include="cModelLoader.h" />
+    <ClInclude Include="ControllerHandler.h" />
     <ClInclude Include="cPlayer.h" />
     <ClInclude Include="cPyramid.h" />
     <ClInclude Include="cShapes.h" />

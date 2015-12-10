@@ -52,5 +52,8 @@ public:
 	void playAudio( ALboolean sndLoop);
 	void stopAudio();
 	void cleanUp();
+
+	void pauseAudio();
+	void resumeAudio();
 };
 #endif

@@ -35,6 +35,12 @@ cSoundMgr* cSoundMgr::getInstance()
 void cSoundMgr::createContext()
 {
 	m_OALDevice = alcOpenDevice(NULL);
+
+	if (m_OALDevice == NULL){
+		ALenum error = alcGetError(m_OALDevice);
+		float b = 0;
+	}
+
 	if (m_OALDevice)
 	{
 		//Create a context

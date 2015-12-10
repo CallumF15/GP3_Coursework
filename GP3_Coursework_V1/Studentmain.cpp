@@ -27,6 +27,8 @@
 #include "cLaser.h"
 #include "tardisWarsGame.h"
 
+#include "ControllerHandler.h"
+
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -91,11 +93,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	cTexture starTexture;
 	starTexture.createTexture("Images/background.png");
 
+
 	cTexture cubeTexture;
 	cubeTexture.createTexture("Images/diceFaces.png");
-
-	// the starfield
-	cStarfield theStarField(starTexture.getTexture(), glm::vec3(50.0f, 50.0f, 50.0f));
 
 	// Create Materials for lights
 	cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
@@ -158,13 +158,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	thePlayer.attachInputMgr(theInputMgr);
 	thePlayer.attachSoundMgr(theSoundMgr);
 
-	cCamera theCamera;
-	theCamera.setTheCameraPos(glm::vec3(0.0f, 0.0f, 75.0f));
-	theCamera.setTheCameraLookAt(glm::vec3(0.0f, 0.0f, 90.0f)); //rotate to face tardis/player
-	theCamera.setTheCameraUpVector(glm::vec3(0.0f, 1.0f, 0.0f)); // pointing upwards in world space
-	theCamera.setTheCameraAspectRatio(windowWidth, windowHeight);
-	theCamera.setTheProjectionMatrix(45.0f, theCamera.getTheCameraAspectRatio(), 0.1f, 300.0f);
-	theCamera.update();
+	cCamera debugCamera, gameCamera;
+	gameCamera.setTheCameraPos(glm::vec3(0.0f, 0.0f, 75.0f));
+	gameCamera.setTheCameraLookAt(glm::vec3(0.0f, 0.0f, 90.0f)); //rotate to face tardis/player
+	gameCamera.setTheCameraUpVector(glm::vec3(0.0f, 1.0f, 0.0f)); // pointing upwards in world space
+	gameCamera.setTheCameraAspectRatio(windowWidth, windowHeight);
+	gameCamera.setTheProjectionMatrix(45.0f, gameCamera.getTheCameraAspectRatio(), 0.1f, 300.0f);
+	gameCamera.update();
+
+	debugCamera = gameCamera;
 
 	float tCount = 0.0f;
 	string outputMsg;
@@ -175,23 +177,48 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 
 	cube.initialise(cubeTexture);
-	cube.prepare(45.0f);
-	cube.render(cube.getRotAngle()); //cube isn't rendering on screen.....
-	
+
+	bool toggleCamera = false;
+	ControllerHandler cHandler;
+	cHandler.setNumberPlayers(1);
+	cHandler.getState(); //get game pad if one is connected
+
+	//cHandler.Vibrate(65535, 65535);
+
    //This is the mainloop, we render frames until isRunning returns false
 	while (pgmWNDMgr->isWNDRunning())
     {
 		pgmWNDMgr->processWNDEvents(); //Process any window events
 
-		glm::vec3 testGetPos = theCamera.getTheCameraPos();
-		int mouseX = theInputMgr->getMouseXPos();
-		int mouseY = theInputMgr->getMouseYPos();
-		glm::vec2 mousePos = glm::vec2(mouseX, mouseY);
-		theCamera.movement(theInputMgr);
-		theCamera.mouseUpdate(mousePos);
-		theCamera.Update2();
+		
 		
 
+		if (theInputMgr->isKeyDown(VK_END)){ //toggleCamera to debug or game camera
+			toggleCamera = !toggleCamera;
+		}else
+		if (theInputMgr->isKeyDown(VK_TAB) && thePlayer.getSoundOff() != true){ //turns off sound or pauses it
+			thePlayer.setSoundOff(true);
+			theSoundMgr->getSnd("Theme")->pauseAudio();
+			theSoundMgr->getSnd("Shot")->stopAudio();
+			theSoundMgr->getSnd("Explosion")->stopAudio();
+		}else
+		if (theInputMgr->isKeyDown(VK_CAPITAL) && thePlayer.getSoundOff() != false){
+				thePlayer.setSoundOff(false); //turns sound back on for player actions
+				theSoundMgr->getSnd("Theme")->resumeAudio(); //resumes audio 
+		}
+
+		if (toggleCamera == true){
+			int mouseX = theInputMgr->getMouseXPos(); //get mouse position
+			int mouseY = theInputMgr->getMouseYPos();
+			glm::vec2 mousePos = glm::vec2(mouseX, mouseY); 
+			debugCamera.movement(theInputMgr); 
+			debugCamera.mouseUpdate(mousePos);
+			debugCamera.Update2(); //update camera
+		}
+		else{ //use default game camera behavior instead
+			gameCamera.trackPlayer(glm::vec3(thePlayer.getPosition().x, thePlayer.getPosition().y, 75.0f));
+			gameCamera.Update2();
+		}
         //We get the time that passed since the last frame
 		float elapsedTime = pgmWNDMgr->getElapsedSeconds();
 		
@@ -201,8 +228,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
-		glLoadMatrixf((GLfloat*)&theCamera.getTheViewMatrix());
-		theStarField.render(0.0f);
+		if (toggleCamera)
+			glLoadMatrixf((GLfloat*)&debugCamera.getTheViewMatrix());
+		else
+			glLoadMatrixf((GLfloat*)&gameCamera.getTheViewMatrix());
+
 		sunMaterial.useMaterial();
 		sunLight.lightOn();
 		lfLight.lightOn();
@@ -219,7 +249,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		}
 
 		tardisMdl.renderMdl(thePlayer.getPosition(), thePlayer.getRotation(), thePlayer.getScale());
-		//thePlayer.update(elapsedTime);
+		if (!toggleCamera)
+		thePlayer.update(elapsedTime);
 		
 		for (vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin(); laserIterartor != theTardisLasers.end(); ++laserIterartor)
 		{
@@ -238,8 +269,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		theFontMgr->getFont("DrWho")->printText(outputMsg.c_str(), FTPoint(850, 35, 0.0f), colour3f(255.0f, 255.0f, 0.0f)); // uses c_str to convert string to LPCSTR
 		glPopMatrix();
 
-		/*cube.prepare(45.0f);
-		cube.render(cube.getRotAngle());*/
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, -50.0f);
+		cube.prepare(45.0f);
+		cube.render(cube.getRotAngle());
+		glPopMatrix();
 
 		pgmWNDMgr->swapBuffers();
 		

@@ -206,3 +206,8 @@ void cCamera::strafeRight()
 {
 	m_cameraPos += 1.0f * strafedirection;
 }
+
+void cCamera::trackPlayer(glm::vec3 playerPosition){
+
+	m_cameraPos = glm::vec3(playerPosition.x, playerPosition.y, playerPosition.z);
+}

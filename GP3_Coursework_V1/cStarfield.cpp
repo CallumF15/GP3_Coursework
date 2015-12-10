@@ -23,7 +23,7 @@ cStarfield::cStarfield(GLint theTextureID, glm::vec3 theFieldVolume)
 	setRotAngle(0.0f);
 	m_TextureID = theTextureID;
 	m_FieldVolume = theFieldVolume;
-	m_StarPos = glm::vec3(0.0f, 0.0f, -5.0f);
+	m_StarPos = glm::vec3(0.0f, 0.0f, 80.0f);
 }
 
 void cStarfield::render(float rotAngle)

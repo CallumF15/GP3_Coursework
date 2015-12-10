@@ -72,12 +72,16 @@ public:
 	void update();
 
 	//my variables/methods
+
 	glm::vec3 strafedirection;
 	glm::vec2 oldMousePos;
+
 	void Update2();
 	void movement(cInputMgr* inputMgr);
 	void mouseUpdate(const glm::vec2& newMousePos);
 	void strafeLeft();
 	void strafeRight();
+
+	void trackPlayer(glm::vec3 playerPosition);
 };
 #endif

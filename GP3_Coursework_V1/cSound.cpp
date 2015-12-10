@@ -14,7 +14,6 @@ cSound::cSound()
 	m_OALBitRate = 0;		  // Bit Rate
 	m_OALLength = 0;		  // Length
 	m_OALBuffer = 0;         // Buffer
-
 }
 
 cSound::~cSound()
@@ -60,10 +59,10 @@ void cSound::LoadWAVInfo(ifstream &filename, string &name, 	unsigned int &size)
 
 void cSound::playAudio(ALboolean sndLoop)
 {
-	alSourcei(m_OALSource, sndLoop, AL_TRUE);
+		alSourcei(m_OALSource, sndLoop, AL_TRUE);
 
-	//play
-	alSourcePlay(m_OALSource);
+		//play
+		alSourcePlay(m_OALSource);
 }
 
 void cSound::stopAudio()
@@ -92,3 +91,12 @@ void cSound::cleanUp()
 	//release the data
 	delete m_OALData;
 }
+
+void cSound::pauseAudio(){
+	alSourcePause(m_OALSource); //takes audio source and pauses it
+}
+
+void cSound::resumeAudio(){
+	alSourcePlay(m_OALSource); //takes audio source and plays where it last left off.
+}
+

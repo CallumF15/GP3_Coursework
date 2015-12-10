@@ -11,10 +11,16 @@ class cPlayer : public cModel
 private:
 	cInputMgr* m_InputMgr;
 public:
+
+	bool isSoundOff;
+
 	cPlayer();
 	void attachInputMgr(cInputMgr* inputMgr);
 	virtual void update(float elapsedTime);
 
 	~cPlayer();
+
+	bool getSoundOff();
+	void setSoundOff(bool setSoundOff);
 };
 #endif

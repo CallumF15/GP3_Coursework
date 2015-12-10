@@ -2,7 +2,7 @@
 
 cPlayer::cPlayer() : cModel()
 {
-
+	isSoundOff = false;
 }
 
 void cPlayer::attachInputMgr(cInputMgr* inputMgr)
@@ -14,20 +14,12 @@ void cPlayer::update(float elapsedTime)
 {
 	if (m_InputMgr->isKeyDown(VK_RIGHT))
 	{
-		rotationAngle += 5.0f;
+		translationZ += 1.0f;
 		
 	}
 	if (m_InputMgr->isKeyDown(VK_LEFT))
 	{
-		rotationAngle -= 5.0f;
-	}
-	if (m_InputMgr->isKeyDown(VK_UP))
-	{
-		translationZ += 5.0f;
-	}
-	if (m_InputMgr->isKeyDown(VK_DOWN))
-	{
-		translationZ -= 5.0f;
+		translationZ -= 1.0f;
 	}
 
 	if (m_InputMgr->isKeyDown(VK_SPACE))
@@ -50,6 +42,7 @@ void cPlayer::update(float elapsedTime)
 		//theTardisLasers[numLasers]->setMdlDimensions(theLaser.getModelDimensions());
 		theTardisLasers[numLasers]->update(elapsedTime);
 		// play the firing sound
+		if (!isSoundOff)
 		m_SoundMgr->getSnd("Shot")->playAudio(AL_TRUE);
 	}
 
@@ -69,6 +62,7 @@ void cPlayer::update(float elapsedTime)
 				(*enemyIterator)->setIsActive(false);
 				(*laserIterartor)->setIsActive(false);
 				// play the explosion sound.
+				if (!isSoundOff)
 				m_SoundMgr->getSnd("Explosion")->playAudio(AL_TRUE);
 			}
 		}
@@ -111,7 +105,7 @@ void cPlayer::update(float elapsedTime)
 	mdlVelocityAdd *= translationZ;
 	m_mdlDirection += mdlVelocityAdd;
 
-	m_mdlPosition += m_mdlDirection * m_mdlSpeed *elapsedTime;
+	m_mdlPosition += glm::vec3(m_mdlSpeed * translationZ * elapsedTime, 0.0f, 0.0f);
 	m_mdlDirection *= 0.95f;
 
 	rotationAngle = 0;
@@ -121,4 +115,13 @@ void cPlayer::update(float elapsedTime)
 cPlayer::~cPlayer()
 {
 
+}
+
+
+bool cPlayer::getSoundOff(){
+	return isSoundOff;
+}
+
+void cPlayer::setSoundOff(bool setSoundOff){
+	isSoundOff = setSoundOff;
 }
