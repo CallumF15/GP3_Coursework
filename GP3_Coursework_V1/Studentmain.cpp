@@ -153,7 +153,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 
 	cPlayer thePlayer;
-	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 5.0f, true);
+	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 20.0f, true);
 	thePlayer.setMdlDimensions(tardisMdl.getModelDimensions());
 	thePlayer.attachInputMgr(theInputMgr);
 	thePlayer.attachSoundMgr(theSoundMgr);
@@ -181,7 +181,17 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	bool toggleCamera = false;
 	ControllerHandler cHandler;
 	cHandler.setNumberPlayers(1);
-	cHandler.getState(); //get game pad if one is connected
+
+	cSphere theEarth(3, 30, 30);
+
+	cTexture earthTexture;
+	earthTexture.createTexture("Images/Earth.png");
+	
+	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, 20), glm::vec3(0, 0, 0));
+	float earthRotSpeed = 3.0f;
+
+	// cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
+	cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 50.0f);
 
 	//cHandler.Vibrate(65535, 65535);
 
@@ -190,8 +200,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
     {
 		pgmWNDMgr->processWNDEvents(); //Process any window events
 
-		
-		
+		if (cHandler.getState() == true){ //check controller is connected
+			//cHandler.Vibrate(65000.0f, 65000.0f);
+			cHandler.CheckDeadZones();
+			//cHandler.CheckControllerInput();
+			thePlayer.setNormalisedRX(cHandler.getNormalisedRX());
+			thePlayer.setNormalisedRY(cHandler.getNormalisedRY());
+		}
+		else{
+			//turn off vibrations
+		}
+
+		thePlayer.setMouseXPosition(theInputMgr->getMouseXPos());
+		thePlayer.setMouseYPosition(theInputMgr->getMouseYPos());
 
 		if (theInputMgr->isKeyDown(VK_END)){ //toggleCamera to debug or game camera
 			toggleCamera = !toggleCamera;
@@ -239,17 +260,29 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		rfLight.lightOn();
 		cbLight.lightOn();
 
+		theEarth.setRotAngle(theEarth.getRotAngle() + (earthRotSpeed*elapsedTime));
+		theEarth.prepare(theEarth.getRotAngle()); //Do any pre-rendering logic
+		earthMaterial.useMaterial();				// Set the material for use
+		theEarth.render(theEarth.getRotAngle()); //Render the scene
+
+
+
+
+		cube.prepare(45.0f);
+		cube.render(cube.getRotAngle());
+
 		for (vector<cEnemy*>::iterator enemyIterator = theEnemy.begin(); enemyIterator != theEnemy.end(); ++enemyIterator)
 		{
 			if ((*enemyIterator)->isActive())
 			{
-				spaceShipMdl.renderMdl((*enemyIterator)->getPosition(), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
+				spaceShipMdl.renderMdl(glm::vec3((*enemyIterator)->getPosition().x, 0.0f, (*enemyIterator)->getPosition().z), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
+				//spaceShipMdl.renderMdl((*enemyIterator)->getPosition(), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
 				(*enemyIterator)->update(elapsedTime);
 			}
 		}
 
 		tardisMdl.renderMdl(thePlayer.getPosition(), thePlayer.getRotation(), thePlayer.getScale());
-		if (!toggleCamera)
+		//if (!toggleCamera)
 		thePlayer.update(elapsedTime);
 		
 		for (vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin(); laserIterartor != theTardisLasers.end(); ++laserIterartor)
@@ -269,11 +302,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		theFontMgr->getFont("DrWho")->printText(outputMsg.c_str(), FTPoint(850, 35, 0.0f), colour3f(255.0f, 255.0f, 0.0f)); // uses c_str to convert string to LPCSTR
 		glPopMatrix();
 
-		glPushMatrix();
-		glTranslatef(0.0f, 0.0f, -50.0f);
-		cube.prepare(45.0f);
-		cube.render(cube.getRotAngle());
-		glPopMatrix();
 
 		pgmWNDMgr->swapBuffers();
 		

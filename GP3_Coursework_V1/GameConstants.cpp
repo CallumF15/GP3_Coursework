@@ -9,4 +9,5 @@ GameConstants.cpp
 int drawMode = 0;
 float rotationAngle = 0;
 float translationZ = 0;
+float translationY = 0;
 bool fire = false;

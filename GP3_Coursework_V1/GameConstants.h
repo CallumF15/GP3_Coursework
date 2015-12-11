@@ -75,6 +75,7 @@ const float PLAYFIELDZ = 100.0f;
 extern int drawMode;
 extern float rotationAngle;
 extern float translationZ;
+extern float translationY;
 extern bool fire;
 
 

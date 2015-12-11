@@ -160,6 +160,6 @@ void cCube::initialise(cTexture theTexture)
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferObjects[0]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 
-	glTranslatef(0.0f, 0.0f, 80.0f);
+	glTranslatef(0.0f, 0.0f, 75.0f);
 	glRotatef(30.0f, 0.0f, 1.0f, 0.0f);
 }

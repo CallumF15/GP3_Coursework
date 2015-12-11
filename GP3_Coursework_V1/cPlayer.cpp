@@ -12,14 +12,22 @@ void cPlayer::attachInputMgr(cInputMgr* inputMgr)
 
 void cPlayer::update(float elapsedTime)
 {
-	if (m_InputMgr->isKeyDown(VK_RIGHT))
+	if (m_InputMgr->isKeyDown(VK_RIGHT)|| m_normalisedRX > 0.95f)
 	{
 		translationZ += 1.0f;
-		
-	}
-	if (m_InputMgr->isKeyDown(VK_LEFT))
+	}else
+	if (m_InputMgr->isKeyDown(VK_LEFT) || m_normalisedRX < -0.99f)
 	{
 		translationZ -= 1.0f;
+	}else
+	if (m_InputMgr->isKeyDown(VK_UP) || m_normalisedRY > 0.99f)
+	{
+		translationY += 1.0f;
+	}else
+
+	if (m_InputMgr->isKeyDown(VK_DOWN) || m_normalisedRY < -0.99f)
+	{
+		translationY -= 1.0f;
 	}
 
 	if (m_InputMgr->isKeyDown(VK_SPACE))
@@ -95,21 +103,34 @@ void cPlayer::update(float elapsedTime)
 	}
 
 	// Find out what direction we should be thrusting, using rotation.
-	glm::vec3 mdlVelocityAdd;
-	mdlVelocityAdd.x = -(float)glm::sin(glm::radians(m_mdlRotation));  // Remember to adjust for radians
-	mdlVelocityAdd.y = 0.0f;
-	mdlVelocityAdd.z = -(float)glm::cos(glm::radians(m_mdlRotation));
+	//glm::vec3 mdlVelocityAdd;
+	///m_mdlDirection.x = (float)glm::sin(glm::radians(m_mdlRotation));  // Remember to adjust for radians
+	//m_mdlDirection.y = (float)glm::cos(glm::radians(m_mdlRotation));
+	//if (m_mdlDirection.length() > 0){
+	//	m_mdlDirection = glm::normalize(m_mdlDirection);
+	//}
 
-	m_mdlRotation -= rotationAngle;
+	float angle = glm::atan(mouseY - m_mdlPosition.y, mouseX - m_mdlPosition.x);
+	//m_mdlRotation -= rotationAngle;
 
-	mdlVelocityAdd *= translationZ;
-	m_mdlDirection += mdlVelocityAdd;
+	//mdlVelocityAdd.x *= m_mdlDirection.x * elapsedTime;
+	//mdlVelocityAdd *= translationZ;
+	//m_mdlDirection += mdlVelocityAdd;
 
-	m_mdlPosition += glm::vec3(m_mdlSpeed * translationZ * elapsedTime, 0.0f, 0.0f);
+	glm::vec2 speed = glm::vec2(m_mdlSpeed * glm::cos(angle), m_mdlSpeed * glm::sin(angle));
+	//glm::vec2 speed = glm::vec2(glm::cos(angle) * m_mdlSpeed, glm::sin(angle) * m_mdlSpeed);
+
+	m_mdlDirection.x += speed.x;
+	m_mdlDirection.y += speed.y;
+
+	m_mdlPosition += glm::vec3(speed.x * translationZ * elapsedTime, speed.y * translationY * elapsedTime, 0.0f);
+	setRotation(angle);
+	//m_mdlPosition += glm::vec3(speed.x * translationZ * elapsedTime, speed.y * translationY * elapsedTime, 0.0f);
 	m_mdlDirection *= 0.95f;
 
 	rotationAngle = 0;
 	translationZ = 0;
+	translationY = 0;
 }
 
 cPlayer::~cPlayer()
@@ -117,6 +138,13 @@ cPlayer::~cPlayer()
 
 }
 
+void cPlayer::setMouseXPosition(int x){
+	mouseX = x;
+}
+
+void cPlayer::setMouseYPosition(int y){
+	mouseY = y;
+}
 
 bool cPlayer::getSoundOff(){
 	return isSoundOff;
@@ -124,4 +152,21 @@ bool cPlayer::getSoundOff(){
 
 void cPlayer::setSoundOff(bool setSoundOff){
 	isSoundOff = setSoundOff;
+}
+
+//Setters
+void cPlayer::setNormalisedLX(float normalisedLX){
+	m_normalisedLX = normalisedLX;
+}
+
+void cPlayer::setNormalisedLY(float normalisedLY){
+	m_normalisedLY = normalisedLY;
+}
+
+void cPlayer::setNormalisedRX(float normalisedRX){
+	m_normalisedRX = normalisedRX;
+}
+
+void cPlayer::setNormalisedRY(float normalisedRY){
+	m_normalisedRY = normalisedRY;
 }

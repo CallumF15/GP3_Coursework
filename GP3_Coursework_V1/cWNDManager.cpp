@@ -246,6 +246,9 @@ LRESULT CALLBACK cWNDManager::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		int height = HIWORD(lParam);        // retrieve width and height
 		int width = LOWORD(lParam);
+		//POINT apoint;
+		//GetCursorPos(&apoint);
+		//LONG posX = apoint.x;
 		pInstance->m_InputMgr->mouseXY(lParam);
 	}
 		break;
