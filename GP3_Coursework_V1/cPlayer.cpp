@@ -14,20 +14,22 @@ void cPlayer::update(float elapsedTime)
 {
 	if (m_InputMgr->isKeyDown(VK_RIGHT)|| m_normalisedRX > 0.95f)
 	{
-		translationZ += 1.0f;
+		//translationZ += 1.0f;
+		rotationAngle += 5.0f;
 	}else
 	if (m_InputMgr->isKeyDown(VK_LEFT) || m_normalisedRX < -0.99f)
 	{
-		translationZ -= 1.0f;
+		//translationZ -= 1.0f;
+		rotationAngle -= 5.0f;
 	}else
 	if (m_InputMgr->isKeyDown(VK_UP) || m_normalisedRY > 0.99f)
 	{
-		translationY += 1.0f;
+		translationZ += 1.0f;
 	}else
 
 	if (m_InputMgr->isKeyDown(VK_DOWN) || m_normalisedRY < -0.99f)
 	{
-		translationY -= 1.0f;
+		translationZ -= 1.0f;
 	}
 
 	if (m_InputMgr->isKeyDown(VK_SPACE))
@@ -103,29 +105,22 @@ void cPlayer::update(float elapsedTime)
 	}
 
 	// Find out what direction we should be thrusting, using rotation.
-	//glm::vec3 mdlVelocityAdd;
-	///m_mdlDirection.x = (float)glm::sin(glm::radians(m_mdlRotation));  // Remember to adjust for radians
-	//m_mdlDirection.y = (float)glm::cos(glm::radians(m_mdlRotation));
-	//if (m_mdlDirection.length() > 0){
-	//	m_mdlDirection = glm::normalize(m_mdlDirection);
-	//}
-
+	glm::vec3 mdlVelocityAdd;
 	float angle = glm::atan(mouseY - m_mdlPosition.y, mouseX - m_mdlPosition.x);
-	//m_mdlRotation -= rotationAngle;
+	mdlVelocityAdd.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
+	mdlVelocityAdd.y = (float)glm::sin(glm::radians(m_mdlRotation));
+	mdlVelocityAdd.z = 0.0f;
 
-	//mdlVelocityAdd.x *= m_mdlDirection.x * elapsedTime;
-	//mdlVelocityAdd *= translationZ;
-	//m_mdlDirection += mdlVelocityAdd;
+	m_mdlRotation -= rotationAngle;
+	mdlVelocityAdd *= translationZ;
+	//mdlVelocityAdd.x *= translationZ;
+	//mdlVelocityAdd.y *= translationY;
+	m_mdlDirection += mdlVelocityAdd;
 
-	glm::vec2 speed = glm::vec2(m_mdlSpeed * glm::cos(angle), m_mdlSpeed * glm::sin(angle));
-	//glm::vec2 speed = glm::vec2(glm::cos(angle) * m_mdlSpeed, glm::sin(angle) * m_mdlSpeed);
-
-	m_mdlDirection.x += speed.x;
-	m_mdlDirection.y += speed.y;
-
-	m_mdlPosition += glm::vec3(speed.x * translationZ * elapsedTime, speed.y * translationY * elapsedTime, 0.0f);
-	setRotation(angle);
-	//m_mdlPosition += glm::vec3(speed.x * translationZ * elapsedTime, speed.y * translationY * elapsedTime, 0.0f);
+	m_mdlPosition += m_mdlDirection * m_mdlSpeed *elapsedTime;
+	//m_mdlPosition.x += m_mdlDirection.x * m_mdlSpeed * elapsedTime;
+	//m_mdlPosition.y += m_mdlDirection.y * m_mdlSpeed * elapsedTime;
+	//m_mdlPosition.z = 0.0f;
 	m_mdlDirection *= 0.95f;
 
 	rotationAngle = 0;

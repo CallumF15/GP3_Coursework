@@ -244,12 +244,9 @@ LRESULT CALLBACK cWNDManager::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		break;
 	case WM_MOUSEMOVE: //Callum's Additon to get the Mouse INPUT
 	{
-		int height = HIWORD(lParam);        // retrieve width and height
+		int height = HIWORD(lParam);        // retrieve width and height (X and Y positions)
 		int width = LOWORD(lParam);
-		//POINT apoint;
-		//GetCursorPos(&apoint);
-		//LONG posX = apoint.x;
-		pInstance->m_InputMgr->mouseXY(lParam);
+		pInstance->m_InputMgr->mouseXY(lParam); //pass mouse position into function
 	}
 		break;
 	case WM_KEYDOWN:
