@@ -152,8 +152,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	}
 
 
-	cPlayer thePlayer;
-	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 20.0f, true);
+	cPlayer thePlayer;                                                                    //speed
+	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 1.0f, true);
 	thePlayer.setMdlDimensions(tardisMdl.getModelDimensions());
 	thePlayer.attachInputMgr(theInputMgr);
 	thePlayer.attachSoundMgr(theSoundMgr);
@@ -163,7 +163,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	gameCamera.setTheCameraLookAt(glm::vec3(0.0f, 0.0f, 90.0f)); //rotate to face tardis/player
 	gameCamera.setTheCameraUpVector(glm::vec3(0.0f, 1.0f, 0.0f)); // pointing upwards in world space
 	gameCamera.setTheCameraAspectRatio(windowWidth, windowHeight);
-	gameCamera.setTheProjectionMatrix(45.0f, gameCamera.getTheCameraAspectRatio(), 0.1f, 300.0f);
+	gameCamera.setTheProjectionMatrix(45.0f, gameCamera.getTheCameraAspectRatio(), 0.1f, 1000.0f);
 	gameCamera.update();
 
 	debugCamera = gameCamera;
@@ -187,13 +187,12 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	cTexture earthTexture;
 	earthTexture.createTexture("Images/Earth.png");
 	
-	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, 20), glm::vec3(0, 0, 0));
+	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, -90), glm::vec3(0, 0, 0));
 	float earthRotSpeed = 3.0f;
 
 	// cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
-	cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 50.0f);
-
-	//cHandler.Vibrate(65535, 65535);
+	//cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 50.f);
+	cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), .1f);
 
    //This is the mainloop, we render frames until isRunning returns false
 	while (pgmWNDMgr->isWNDRunning())
@@ -202,6 +201,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 		if (cHandler.getState() == true){ //check controller is connected
 			//cHandler.Vibrate(65000.0f, 65000.0f);
+			thePlayer.attachControllerHander(cHandler);
 			cHandler.CheckDeadZones();
 			//cHandler.CheckControllerInput();
 			thePlayer.setNormalisedRX(cHandler.getNormalisedRX());
@@ -265,9 +265,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		earthMaterial.useMaterial();				// Set the material for use
 		theEarth.render(theEarth.getRotAngle()); //Render the scene
 
-
-
-
 		cube.prepare(45.0f);
 		cube.render(cube.getRotAngle());
 
@@ -275,14 +272,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		{
 			if ((*enemyIterator)->isActive())
 			{
-				spaceShipMdl.renderMdl(glm::vec3((*enemyIterator)->getPosition().x, 0.0f, (*enemyIterator)->getPosition().z), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
+				spaceShipMdl.renderMdl(glm::vec3((*enemyIterator)->getPosition().x, (*enemyIterator)->getPosition().y, 0.0f), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
 				//spaceShipMdl.renderMdl((*enemyIterator)->getPosition(), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
 				(*enemyIterator)->update(elapsedTime);
 			}
 		}
 
 		tardisMdl.renderMdl(thePlayer.getPosition(), thePlayer.getRotation(), thePlayer.getScale());
-		//if (!toggleCamera)
+		if (!toggleCamera)
 		thePlayer.update(elapsedTime);
 		
 		for (vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin(); laserIterartor != theTardisLasers.end(); ++laserIterartor)

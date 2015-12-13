@@ -10,35 +10,47 @@ void cPlayer::attachInputMgr(cInputMgr* inputMgr)
 	m_InputMgr = inputMgr;
 }
 
+void cPlayer::attachControllerHander(ControllerHandler controllerHandler){
+	m_controlHandler = controllerHandler;
+}
+
 void cPlayer::update(float elapsedTime)
 {
-	if (m_InputMgr->isKeyDown(VK_RIGHT)|| m_normalisedRX > 0.95f)
+	if (m_InputMgr->isKeyDown(VK_RIGHT)|| (m_controlHandler.getNormalisedRX() > 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
 	{
-		//translationZ += 1.0f;
-		rotationAngle += 5.0f;
+		translationZ += 1.0f; //needs to be minus since model inverted position
+		currentKey = VK_RIGHT;
 	}else
-	if (m_InputMgr->isKeyDown(VK_LEFT) || m_normalisedRX < -0.99f)
-	{
-		//translationZ -= 1.0f;
-		rotationAngle -= 5.0f;
-	}else
-	if (m_InputMgr->isKeyDown(VK_UP) || m_normalisedRY > 0.99f)
-	{
-		translationZ += 1.0f;
-	}else
-
-	if (m_InputMgr->isKeyDown(VK_DOWN) || m_normalisedRY < -0.99f)
+	if (m_InputMgr->isKeyDown(VK_LEFT) || (m_controlHandler.getNormalisedRX() < 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
 	{
 		translationZ -= 1.0f;
-	}
+		currentKey = VK_LEFT;
+
+	}else
+
+
+	//if (m_InputMgr->isKeyDown(VK_UP) || m_normalisedRY > 0.99f)
+	//{
+	//	translationZ += 1.0f;
+	//}else
+
+	//if (m_InputMgr->isKeyDown(VK_DOWN) || m_normalisedRY < -0.99f)
+	//{
+	//	translationZ -= 1.0f;
+	//}
 
 	if (m_InputMgr->isKeyDown(VK_SPACE))
 	{
 		glm::vec3 mdlLaserDirection;
-		mdlLaserDirection.x = -(float)glm::sin(glm::radians(this->getRotation()));
-		mdlLaserDirection.y = 0.0f;
-		mdlLaserDirection.z = (float)glm::cos(glm::radians(this->getRotation()));
-		mdlLaserDirection *= -1;
+		mdlLaserDirection.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
+		mdlLaserDirection.y = (float)glm::sin(glm::radians(m_mdlRotation));
+		mdlLaserDirection.z = 0.0f;
+
+		if (currentKey == VK_RIGHT) //if facing right set fire direction right
+			mdlLaserDirection *= 1.0f;
+		else
+		if (currentKey == VK_LEFT) //same as above except left
+			mdlLaserDirection *= -1.0f;
 
 		// Add new bullet sprite to the vector array
 		theTardisLasers.push_back(new cLaser);
@@ -47,7 +59,7 @@ void cPlayer::update(float elapsedTime)
 		theTardisLasers[numLasers]->setRotation(0.0f);
 		theTardisLasers[numLasers]->setScale(glm::vec3(1, 1, 1));
 		theTardisLasers[numLasers]->setSpeed(5.0f);
-		theTardisLasers[numLasers]->setPosition(this->getPosition() + mdlLaserDirection);
+ 		theTardisLasers[numLasers]->setPosition(this->getPosition() + mdlLaserDirection);
 		theTardisLasers[numLasers]->setIsActive(true);
 		//theTardisLasers[numLasers]->setMdlDimensions(theLaser.getModelDimensions());
 		theTardisLasers[numLasers]->update(elapsedTime);
@@ -104,34 +116,39 @@ void cPlayer::update(float elapsedTime)
 		}
 	}
 
+	float angle2 = glm::atan(m_normalisedRY, m_normalisedRX);
+
 	// Find out what direction we should be thrusting, using rotation.
+
+	float angle;
+
+	if (m_controlHandler.getState() == true)
+	angle = glm::atan(m_controlHandler.getNormalisedLY(), m_controlHandler.getNormalisedLX()) * (180 / 3.14); //calculate left thumbstick angle
+	else
+	angle = glm::atan(mouseY - 768.f / 2, mouseX - 1024.f / 2) * (180 / 3.14); //calculate angle from screen width height and mouse position
+
 	glm::vec3 mdlVelocityAdd;
-	float angle = glm::atan(mouseY - m_mdlPosition.y, mouseX - m_mdlPosition.x);
 	mdlVelocityAdd.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
 	mdlVelocityAdd.y = (float)glm::sin(glm::radians(m_mdlRotation));
 	mdlVelocityAdd.z = 0.0f;
 
-	m_mdlRotation -= rotationAngle;
+	m_mdlRotation = angle; //pass angle to rotate model
 	mdlVelocityAdd *= translationZ;
-	//mdlVelocityAdd.x *= translationZ;
-	//mdlVelocityAdd.y *= translationY;
 	m_mdlDirection += mdlVelocityAdd;
 
-	m_mdlPosition += m_mdlDirection * m_mdlSpeed *elapsedTime;
-	//m_mdlPosition.x += m_mdlDirection.x * m_mdlSpeed * elapsedTime;
-	//m_mdlPosition.y += m_mdlDirection.y * m_mdlSpeed * elapsedTime;
-	//m_mdlPosition.z = 0.0f;
+	m_mdlPosition += m_mdlDirection * m_mdlSpeed * elapsedTime;
 	m_mdlDirection *= 0.95f;
 
-	rotationAngle = 0;
 	translationZ = 0;
-	translationY = 0;
+	//translationY = 0;
+	lastKey = currentKey;
 }
 
 cPlayer::~cPlayer()
 {
 
 }
+
 
 void cPlayer::setMouseXPosition(int x){
 	mouseX = x;

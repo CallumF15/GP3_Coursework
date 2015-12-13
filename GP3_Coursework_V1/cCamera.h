@@ -11,6 +11,7 @@ cCamera.h
 #include "GameConstants.h"
 #include "cInputMgr.h"
 
+
 using namespace std;
 
 class cCamera

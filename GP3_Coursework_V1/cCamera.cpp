@@ -25,7 +25,7 @@ cCamera::cCamera(int screenWidth, int screenHeight)
 
 cCamera::~cCamera()
 {
-	
+
 }
 
 void cCamera::setTheViewPort(int x, int y, int width, int height)
@@ -96,7 +96,7 @@ glm::vec3 cCamera::getTheCameraStrafe()
 
 void cCamera::setTheCameraAspectRatio(GLfloat width, GLfloat height)
 {
-	m_AspectRatio = width/height;
+	m_AspectRatio = width / height;
 }
 
 GLfloat cCamera::getTheCameraAspectRatio()
@@ -129,7 +129,7 @@ void cCamera::update()
 	setTheCameraDirection();
 	setTheCameraStrafe();
 	setTheCameraUpVector(glm::cross(m_cameraDirection, m_cameraStrafe));
-	setTheProjectionMatrix(45.0f, getTheCameraAspectRatio(), 0.1f, 300.0f);
+	setTheProjectionMatrix(45.0f, getTheCameraAspectRatio(), 0.1f, 1000.0f);
 	setCamViewMatrix();
 }
 

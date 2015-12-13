@@ -39,7 +39,7 @@ public:
 	bool anyKeyPressed();						// Return true if any key was pressed
 	void clearKeyPress(int vkey);				// Clear the specified key press
 	void clearBuffers(BYTE bufferToClear);		// Clear buffers, single or combined
-	void mouseXY(LPARAM);						// Reads mouse screen position into mouseX, mouseY
+	void mouseXY(LPARAM, float x, float y);						// Reads mouse screen position into mouseX, mouseY
 	void setLeftMouseBtn(bool b);				// Save state of mouse button
 	void setMiddleMouseBtn(bool b);				// Save state of mouse button
 	void setRightMouseBtn(bool b);				// Save state of mouse button

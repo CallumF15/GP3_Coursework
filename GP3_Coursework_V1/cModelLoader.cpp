@@ -36,11 +36,6 @@ void cModelLoader::loadModel(const char* mdlFilename, cTexture mdlTexture)
 	//glmLinearTexture(m_model);
 	m_TextureID = mdlTexture.getTexture();
 
-	glm::vec2 texCoords[4] = {
-		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f),
-		glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)
-	};
-
 	m_model->textures[m_model->numtextures - 1].id = m_TextureID;
 	m_model->textures[m_model->numtextures - 1].width = mdlTexture.getTWidth();
 	m_model->textures[m_model->numtextures - 1].height = mdlTexture.getTHeight();

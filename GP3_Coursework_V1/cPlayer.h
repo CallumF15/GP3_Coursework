@@ -5,25 +5,29 @@
 #include "tardisWarsGame.h"
 #include "cModel.h"
 #include "cInputMgr.h"
-
-#include <math.h>
+#include "ControllerHandler.h"
 
 class cPlayer : public cModel
 {
 private:
 	cInputMgr* m_InputMgr;
+	ControllerHandler m_controlHandler;
 public:
 
 	bool isSoundOff;
 
 	cPlayer();
 	void attachInputMgr(cInputMgr* inputMgr);
+	void attachControllerHander(ControllerHandler controllerHandler);
 	virtual void update(float elapsedTime);
 
 	~cPlayer();
 
 	bool getSoundOff();
 	void setSoundOff(bool setSoundOff);
+
+
+	int lastKey, currentKey;
 
 	//Mouse Related Variables
 	int mouseX;

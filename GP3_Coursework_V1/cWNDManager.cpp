@@ -242,11 +242,18 @@ LRESULT CALLBACK cWNDManager::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		pInstance->getAttachedWND()->onResize(width, height); //Call the example's resize method
 	}
 		break;
-	case WM_MOUSEMOVE: //Callum's Additon to get the Mouse INPUT
+	case WM_MOUSEMOVE: //Detects mouse movement
 	{
-		int height = HIWORD(lParam);        // retrieve width and height (X and Y positions)
-		int width = LOWORD(lParam);
-		pInstance->m_InputMgr->mouseXY(lParam); //pass mouse position into function
+		//int height = HIWORD(lParam);        // retrieve width and height (X and Y positions)
+		//int width = LOWORD(lParam);	
+
+		POINT point; 
+		GetCursorPos(&point); //get Cursor position
+		ScreenToClient(hWnd, &point); //make sure it's in screen coordinates
+		float x = point.x; //make sure point is float
+		float y = point.y;
+
+		pInstance->m_InputMgr->mouseXY(lParam, x, y); //pass mouse position into function
 	}
 		break;
 	case WM_KEYDOWN:
@@ -272,7 +279,7 @@ windowOGL*  cWNDManager::getAttachedWND()
 	return m_winOGL;
 }
 
-
+//Calculates elapsed time 
 float cWNDManager::getElapsedSeconds()
 {
 	float currentTime = float(GetTickCount()) / 1000.0f;

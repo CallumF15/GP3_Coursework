@@ -33,6 +33,15 @@ public:
 	void CheckControllerInput();
 
 	//Getters & Setters
+	float m_normalizedMagnitudeLXLY;
+	float m_normalizedMagnitudeRXRY;
+
+	void setNormalizedLXLY(float normalizedLXLY);
+	void setNormalizedRXRY(float normalizedRXRY);
+
+	float getNormalizedLXLY();
+	float getNormalizedRXRY();
+
 	float m_normalisedRX;
 	float m_normalisedRY;
 	float m_normalisedLX;

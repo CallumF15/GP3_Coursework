@@ -166,10 +166,12 @@ void cInputMgr::clearBuffers(BYTE bufferToClear)
     Reads mouse screen position into mouseX, mouseY
 =============================================================================
 */
-void cInputMgr::mouseXY(LPARAM lParam)
+void cInputMgr::mouseXY(LPARAM lParam, float x, float y)
 {
-	mousePos.x = LOWORD(lParam);
-	mousePos.y = HIWORD(lParam);
+	//mousePos.x = LOWORD(lParam);
+	//mousePos.y = HIWORD(lParam);
+	mousePos.x = x;
+	mousePos.y = y;
 }
 
 /*

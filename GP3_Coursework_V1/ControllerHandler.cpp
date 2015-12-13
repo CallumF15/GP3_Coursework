@@ -14,7 +14,6 @@ bool ControllerHandler::getState(){
 
 		DWORD dwResult;
 
-		//XINPUT_STATE state;
 		ZeroMemory(&m_controllerState, sizeof(XINPUT_STATE));
 
 		// Simply get the state of the controller from XInput.
@@ -56,9 +55,8 @@ void ControllerHandler::CheckControllerInput(){
 
 void ControllerHandler::CheckDeadZones(){
 
-	float INPUT_DEADZONE = 4000.0f;
+	float INPUT_DEADZONE = 10000.0f;
 	
-
 	float LX = m_controllerState.Gamepad.sThumbLX;
 	float LY = m_controllerState.Gamepad.sThumbLY;
 
@@ -87,14 +85,13 @@ void ControllerHandler::CheckDeadZones(){
 		//optionally normalize the magnitude with respect to its expected range
 		//giving a magnitude value of 0.0 to 1.0
 		normalizedMagnitude = magnitude / (32767 - INPUT_DEADZONE);
+		setNormalizedLXLY(normalizedMagnitude);
 	}
 	else //if the controller is in the deadzone zero out the magnitude
 	{
 		magnitude = 0.0;
 		normalizedMagnitude = 0.0;
 	}
-
-
 
 	//repeat for right thumb stick
 	float RX = m_controllerState.Gamepad.sThumbRX;
@@ -124,6 +121,7 @@ void ControllerHandler::CheckDeadZones(){
 		//optionally normalize the magnitude with respect to its expected range
 		//giving a magnitude value of 0.0 to 1.0
 		normalizedMagnitudeRXRY = magnitudeRXRY / (32767 - INPUT_DEADZONE);
+		setNormalizedRXRY(normalizedMagnitudeRXRY);
 	}
 	else //if the controller is in the deadzone zero out the magnitude
 	{
@@ -152,6 +150,14 @@ void ControllerHandler::Vibrate(int leftVal, int rightVal)
 
 //Setters
 
+void ControllerHandler::setNormalizedLXLY(float normalizedLXLY){
+	m_normalizedMagnitudeLXLY = normalizedLXLY;
+}
+
+void ControllerHandler::setNormalizedRXRY(float normalizedRXRY){
+	m_normalizedMagnitudeRXRY = normalizedRXRY;
+}
+
 void ControllerHandler::setNormalisedLX(float normalisedLX){
 	m_normalisedLX = normalisedLX;
 }
@@ -169,6 +175,14 @@ void ControllerHandler::setNormalisedRY(float normalisedRY){
 }
 
 //Getters
+
+float ControllerHandler::getNormalizedLXLY(){
+	return m_normalizedMagnitudeLXLY;
+}
+
+float ControllerHandler::getNormalizedRXRY(){
+	return m_normalizedMagnitudeRXRY;
+}
 
 float ControllerHandler::getNormalisedLX(){
 	return m_normalisedLX;
