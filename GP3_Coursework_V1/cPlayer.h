@@ -33,7 +33,9 @@ public:
 
 
 	int lastKey, currentKey;
-	float oldtime, currentTime;
+	float vibrateDelay, shootDelay, rechargeDelay;
+
+	int getFireEnergy();
 
 	//Mouse Related Variables
 	int mouseX;

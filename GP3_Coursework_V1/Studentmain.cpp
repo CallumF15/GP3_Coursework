@@ -287,11 +287,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		}
 
 		outputMsg = to_string(theEnemy.size()); // convert float to string
+		string energyMsg = "Energy: " + to_string(thePlayer.getFireEnergy());
+		
 		
 		glPushMatrix();
 		theOGLWnd.setOrtho2D(windowWidth, windowHeight);
 		theFontMgr->getFont("DrWho")->printText("Tardis Wars", FTPoint(10, 35, 0.0f), colour3f(0.0f,255.0f,0.0f));
 		theFontMgr->getFont("DrWho")->printText(outputMsg.c_str(), FTPoint(850, 35, 0.0f), colour3f(255.0f, 255.0f, 0.0f)); // uses c_str to convert string to LPCSTR
+		theFontMgr->getFont("DrWho")->printText(energyMsg.c_str(), FTPoint(800, 750, 0.0f), colour3f(255.0f, 255.0f, 0.0f));
 		glPopMatrix();
 
 

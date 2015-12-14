@@ -3,8 +3,8 @@
 cPlayer::cPlayer() : cModel()
 {
 	isSoundOff = false;
-	oldtime = 0;
-	currentTime = 0;
+	vibrateDelay = 0;
+	shootDelay = 0;
 	fireEnergy = 100;
 }
 
@@ -32,24 +32,39 @@ void cPlayer::update(float elapsedTime)
 
 	}
 
-	if (m_InputMgr->isKeyDown(VK_SPACE))
+	if (m_InputMgr->isKeyDown(VK_SPACE) && fireEnergy > 0)
 	{
 		spawnLasers(elapsedTime);
+		fireEnergy -= 4;
 	}
 
-	if (m_controlHandler.getRightTriggerValue() > .5f){
-		if (currentTime > .5){
+	if (m_controlHandler.getRightTriggerValue() > .5f && fireEnergy > 0){
+		if (shootDelay > .5){
+			fireEnergy -= 4;
 			spawnLasers(elapsedTime);
-			currentTime = 0;
+			shootDelay = 0;
 		}
 	}
 
-	if (m_controlHandler.getRightTriggerValue() < .5f && m_controlHandler.getRightTriggerValue() > .0f){
-		if (currentTime > 1){
+	if (m_controlHandler.getRightTriggerValue() < .5f && m_controlHandler.getRightTriggerValue() > .0f && fireEnergy > 0){
+		if (shootDelay > 1){
+			fireEnergy -= 2;
 			spawnLasers(elapsedTime);
-			currentTime = 0;
+			shootDelay = 0;
 		}
 	}
+
+	if (fireEnergy < 0) //make sure fireEnergy doesn't go below zero
+		fireEnergy = 0;
+	
+	if (fireEnergy > 100) //make sure fireEnergy doesn't go above 100
+		fireEnergy = 100;
+
+	if (m_controlHandler.getRightTriggerValue() == 0)
+		if (rechargeDelay > .5){
+			fireEnergy += 1;
+			rechargeDelay = 0;
+		}
 
 
 	/*
@@ -79,12 +94,12 @@ void cPlayer::update(float elapsedTime)
 		}
 	}
 
-	if (oldtime > 2){ //delay timer for how long until vibration is stopped
+	if (vibrateDelay > 2){ //delay timer for how long until vibration is stopped
 		if (m_controlHandler.getState() == true && hasCollided == true){
 			m_controlHandler.Vibrate(0, 0);
 			hasCollided = false;
 		}
-		oldtime = 0;
+		vibrateDelay = 0;
 	}
 
 
@@ -139,8 +154,9 @@ void cPlayer::update(float elapsedTime)
 	//translationY = 0;
 	lastKey = currentKey;
 
-	oldtime += elapsedTime;
-	currentTime += elapsedTime;
+	vibrateDelay += elapsedTime;
+	shootDelay += elapsedTime;
+	rechargeDelay += elapsedTime;
 }
 
 cPlayer::~cPlayer()
@@ -191,4 +207,8 @@ bool cPlayer::getSoundOff(){
 
 void cPlayer::setSoundOff(bool setSoundOff){
 	isSoundOff = setSoundOff;
+}
+
+int cPlayer::getFireEnergy(){
+	return fireEnergy;
 }
