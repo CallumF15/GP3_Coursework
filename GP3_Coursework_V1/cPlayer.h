@@ -15,11 +15,16 @@ private:
 public:
 
 	bool isSoundOff;
+	float m_tCount;
+	bool hasCollided;
+
+	int fireEnergy;
 
 	cPlayer();
 	void attachInputMgr(cInputMgr* inputMgr);
 	void attachControllerHander(ControllerHandler controllerHandler);
 	virtual void update(float elapsedTime);
+	void spawnLasers(float tcount);
 
 	~cPlayer();
 
@@ -28,6 +33,7 @@ public:
 
 
 	int lastKey, currentKey;
+	float oldtime, currentTime;
 
 	//Mouse Related Variables
 	int mouseX;
@@ -35,17 +41,5 @@ public:
 
 	void setMouseXPosition(int x);
 	void setMouseYPosition(int y);
-
-	//Controller Related Variables/Setters
-	float m_normalisedRX;
-	float m_normalisedRY;
-	float m_normalisedLX;
-	float m_normalisedLY;
-
-	void setNormalisedRX(float normalisedRX);
-	void setNormalisedRY(float normalisedRY);
-
-	void setNormalisedLX(float normalisedLX);
-	void setNormalisedLY(float normalisedLY);
 };
 #endif

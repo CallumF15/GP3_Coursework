@@ -176,6 +176,12 @@ void ControllerHandler::setNormalisedRY(float normalisedRY){
 
 //Getters
 
+float ControllerHandler::getRightTriggerValue(){
+	//float leftTrigger = (float)m_controllerState.Gamepad.bLeftTrigger / 255;
+	float rightTrigger = 0.0f;
+	return rightTrigger = (float)m_controllerState.Gamepad.bRightTrigger / 255; //divde to give us decimal values from 0-1
+}
+
 float ControllerHandler::getNormalizedLXLY(){
 	return m_normalizedMagnitudeLXLY;
 }

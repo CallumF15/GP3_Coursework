@@ -3,6 +3,9 @@
 cPlayer::cPlayer() : cModel()
 {
 	isSoundOff = false;
+	oldtime = 0;
+	currentTime = 0;
+	fireEnergy = 100;
 }
 
 void cPlayer::attachInputMgr(cInputMgr* inputMgr)
@@ -16,57 +19,38 @@ void cPlayer::attachControllerHander(ControllerHandler controllerHandler){
 
 void cPlayer::update(float elapsedTime)
 {
-	if (m_InputMgr->isKeyDown(VK_RIGHT)|| (m_controlHandler.getNormalisedRX() > 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
+	if (m_InputMgr->isKeyDown(VK_RIGHT) || (m_controlHandler.getNormalisedRX() > 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
 	{
 		translationZ += 1.0f; //needs to be minus since model inverted position
 		currentKey = VK_RIGHT;
-	}else
+	}
+
 	if (m_InputMgr->isKeyDown(VK_LEFT) || (m_controlHandler.getNormalisedRX() < 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
 	{
 		translationZ -= 1.0f;
 		currentKey = VK_LEFT;
 
-	}else
-
-
-	//if (m_InputMgr->isKeyDown(VK_UP) || m_normalisedRY > 0.99f)
-	//{
-	//	translationZ += 1.0f;
-	//}else
-
-	//if (m_InputMgr->isKeyDown(VK_DOWN) || m_normalisedRY < -0.99f)
-	//{
-	//	translationZ -= 1.0f;
-	//}
+	}
 
 	if (m_InputMgr->isKeyDown(VK_SPACE))
 	{
-		glm::vec3 mdlLaserDirection;
-		mdlLaserDirection.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
-		mdlLaserDirection.y = (float)glm::sin(glm::radians(m_mdlRotation));
-		mdlLaserDirection.z = 0.0f;
-
-		if (currentKey == VK_RIGHT) //if facing right set fire direction right
-			mdlLaserDirection *= 1.0f;
-		else
-		if (currentKey == VK_LEFT) //same as above except left
-			mdlLaserDirection *= -1.0f;
-
-		// Add new bullet sprite to the vector array
-		theTardisLasers.push_back(new cLaser);
-		int numLasers = theTardisLasers.size() - 1;
-		theTardisLasers[numLasers]->setDirection(mdlLaserDirection);
-		theTardisLasers[numLasers]->setRotation(0.0f);
-		theTardisLasers[numLasers]->setScale(glm::vec3(1, 1, 1));
-		theTardisLasers[numLasers]->setSpeed(5.0f);
- 		theTardisLasers[numLasers]->setPosition(this->getPosition() + mdlLaserDirection);
-		theTardisLasers[numLasers]->setIsActive(true);
-		//theTardisLasers[numLasers]->setMdlDimensions(theLaser.getModelDimensions());
-		theTardisLasers[numLasers]->update(elapsedTime);
-		// play the firing sound
-		if (!isSoundOff)
-		m_SoundMgr->getSnd("Shot")->playAudio(AL_TRUE);
+		spawnLasers(elapsedTime);
 	}
+
+	if (m_controlHandler.getRightTriggerValue() > .5f){
+		if (currentTime > .5){
+			spawnLasers(elapsedTime);
+			currentTime = 0;
+		}
+	}
+
+	if (m_controlHandler.getRightTriggerValue() < .5f && m_controlHandler.getRightTriggerValue() > .0f){
+		if (currentTime > 1){
+			spawnLasers(elapsedTime);
+			currentTime = 0;
+		}
+	}
+
 
 	/*
 	==============================================================
@@ -85,10 +69,24 @@ void cPlayer::update(float elapsedTime)
 				(*laserIterartor)->setIsActive(false);
 				// play the explosion sound.
 				if (!isSoundOff)
-				m_SoundMgr->getSnd("Explosion")->playAudio(AL_TRUE);
+					m_SoundMgr->getSnd("Explosion")->playAudio(AL_TRUE);
+
+				if (m_controlHandler.getState() == true)
+					m_controlHandler.Vibrate(30000, 30000);
+
+				hasCollided = true;
 			}
 		}
 	}
+
+	if (oldtime > 2){ //delay timer for how long until vibration is stopped
+		if (m_controlHandler.getState() == true && hasCollided == true){
+			m_controlHandler.Vibrate(0, 0);
+			hasCollided = false;
+		}
+		oldtime = 0;
+	}
+
 
 	vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin();
 	while (laserIterartor != theTardisLasers.end())
@@ -116,16 +114,14 @@ void cPlayer::update(float elapsedTime)
 		}
 	}
 
-	float angle2 = glm::atan(m_normalisedRY, m_normalisedRX);
-
 	// Find out what direction we should be thrusting, using rotation.
 
 	float angle;
 
 	if (m_controlHandler.getState() == true)
-	angle = glm::atan(m_controlHandler.getNormalisedLY(), m_controlHandler.getNormalisedLX()) * (180 / 3.14); //calculate left thumbstick angle
+		angle = glm::atan(m_controlHandler.getNormalisedLY(), m_controlHandler.getNormalisedLX()) * (180 / 3.14); //calculate left thumbstick angle
 	else
-	angle = glm::atan(mouseY - 768.f / 2, mouseX - 1024.f / 2) * (180 / 3.14); //calculate angle from screen width height and mouse position
+		angle = glm::atan(mouseY - 768.f / 2, mouseX - 1024.f / 2) * (180 / 3.14); //calculate angle from screen width height and mouse position
 
 	glm::vec3 mdlVelocityAdd;
 	mdlVelocityAdd.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
@@ -142,6 +138,9 @@ void cPlayer::update(float elapsedTime)
 	translationZ = 0;
 	//translationY = 0;
 	lastKey = currentKey;
+
+	oldtime += elapsedTime;
+	currentTime += elapsedTime;
 }
 
 cPlayer::~cPlayer()
@@ -149,6 +148,34 @@ cPlayer::~cPlayer()
 
 }
 
+void cPlayer::spawnLasers(float elapsedTime){
+
+	glm::vec3 mdlLaserDirection;
+	mdlLaserDirection.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
+	mdlLaserDirection.y = (float)glm::sin(glm::radians(m_mdlRotation));
+	mdlLaserDirection.z = 0.0f;
+
+	if (currentKey == VK_RIGHT) //if facing right set fire direction right
+		mdlLaserDirection *= 1.0f;
+	else
+	if (currentKey == VK_LEFT) //same as above except left
+		mdlLaserDirection *= -1.0f;
+
+	// Add new bullet sprite to the vector array
+	theTardisLasers.push_back(new cLaser);
+	int numLasers = theTardisLasers.size() - 1;
+	theTardisLasers[numLasers]->setDirection(mdlLaserDirection);
+	theTardisLasers[numLasers]->setRotation(0.0f);
+	theTardisLasers[numLasers]->setScale(glm::vec3(1, 1, 1));
+	theTardisLasers[numLasers]->setSpeed(20.0f);
+	theTardisLasers[numLasers]->setPosition(this->getPosition() + mdlLaserDirection);
+	theTardisLasers[numLasers]->setIsActive(true);
+	//theTardisLasers[numLasers]->setMdlDimensions(theLaser.getModelDimensions());
+	theTardisLasers[numLasers]->update(elapsedTime);
+	// play the firing sound
+	if (!isSoundOff)
+		m_SoundMgr->getSnd("Shot")->playAudio(AL_TRUE);
+}
 
 void cPlayer::setMouseXPosition(int x){
 	mouseX = x;
@@ -164,21 +191,4 @@ bool cPlayer::getSoundOff(){
 
 void cPlayer::setSoundOff(bool setSoundOff){
 	isSoundOff = setSoundOff;
-}
-
-//Setters
-void cPlayer::setNormalisedLX(float normalisedLX){
-	m_normalisedLX = normalisedLX;
-}
-
-void cPlayer::setNormalisedLY(float normalisedLY){
-	m_normalisedLY = normalisedLY;
-}
-
-void cPlayer::setNormalisedRX(float normalisedRX){
-	m_normalisedRX = normalisedRX;
-}
-
-void cPlayer::setNormalisedRY(float normalisedRY){
-	m_normalisedRY = normalisedRY;
 }

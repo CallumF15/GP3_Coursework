@@ -187,7 +187,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	cTexture earthTexture;
 	earthTexture.createTexture("Images/Earth.png");
 	
-	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, -90), glm::vec3(0, 0, 0));
+	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, -10), glm::vec3(0, 0, 0));
 	float earthRotSpeed = 3.0f;
 
 	// cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
@@ -204,8 +204,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 			thePlayer.attachControllerHander(cHandler);
 			cHandler.CheckDeadZones();
 			//cHandler.CheckControllerInput();
-			thePlayer.setNormalisedRX(cHandler.getNormalisedRX());
-			thePlayer.setNormalisedRY(cHandler.getNormalisedRY());
 		}
 		else{
 			//turn off vibrations
@@ -264,9 +262,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		theEarth.prepare(theEarth.getRotAngle()); //Do any pre-rendering logic
 		earthMaterial.useMaterial();				// Set the material for use
 		theEarth.render(theEarth.getRotAngle()); //Render the scene
-
-		cube.prepare(45.0f);
-		cube.render(cube.getRotAngle());
 
 		for (vector<cEnemy*>::iterator enemyIterator = theEnemy.begin(); enemyIterator != theEnemy.end(); ++enemyIterator)
 		{

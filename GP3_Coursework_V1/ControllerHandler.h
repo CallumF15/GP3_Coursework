@@ -33,6 +33,8 @@ public:
 	void CheckControllerInput();
 
 	//Getters & Setters
+	float getRightTriggerValue();
+
 	float m_normalizedMagnitudeLXLY;
 	float m_normalizedMagnitudeRXRY;
 
