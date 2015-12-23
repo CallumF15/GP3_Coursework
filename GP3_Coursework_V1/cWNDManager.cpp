@@ -242,6 +242,12 @@ LRESULT CALLBACK cWNDManager::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		pInstance->getAttachedWND()->onResize(width, height); //Call the example's resize method
 	}
 		break;
+	case WM_LBUTTONDOWN: //left mouse button down
+		pInstance->m_InputMgr->setLeftMouseBtn(true); //pass mouse click bool to input function
+		break;
+	case WM_LBUTTONUP: //left mouse button up 
+		pInstance->m_InputMgr->setLeftMouseBtn(false);
+		break;
 	case WM_MOUSEMOVE: //Detects mouse movement
 	{
 		//int height = HIWORD(lParam);        // retrieve width and height (X and Y positions)

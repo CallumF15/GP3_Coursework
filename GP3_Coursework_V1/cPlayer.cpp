@@ -10,42 +10,43 @@ cPlayer::cPlayer() : cModel()
 
 void cPlayer::attachInputMgr(cInputMgr* inputMgr)
 {
-	m_InputMgr = inputMgr;
+	m_InputMgr = inputMgr; //assign manager object
 }
 
 void cPlayer::attachControllerHander(ControllerHandler controllerHandler){
-	m_controlHandler = controllerHandler;
+	m_controlHandler = controllerHandler; //assign controller object
 }
 
 void cPlayer::update(float elapsedTime)
 {
-	if (m_InputMgr->isKeyDown(VK_RIGHT) || (m_controlHandler.getNormalisedRX() > 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
+	//if right key is pressed or if controller analog stick is facing right direction and is fully pushed.
+	if (m_InputMgr->isKeyDown(VK_RIGHT) || (m_controlHandler.getNormalisedRX() > 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f)) 
 	{
 		translationZ += 1.0f; //needs to be minus since model inverted position
-		currentKey = VK_RIGHT;
-	}
-
+	}else
+		//if left key is pressed or if controller analog stick is facing left direction and is fully pushed.
 	if (m_InputMgr->isKeyDown(VK_LEFT) || (m_controlHandler.getNormalisedRX() < 0.0f && m_controlHandler.getNormalizedRXRY() >= 1.f))
 	{
 		translationZ -= 1.0f;
-		currentKey = VK_LEFT;
-
-	}
-
-	if (m_InputMgr->isKeyDown(VK_SPACE) && fireEnergy > 0)
+	}else
+	//if left mouse button is clicked and there is energy left to fire
+	if (m_InputMgr->getLeftMouseBtn() && fireEnergy > 0)
 	{
-		spawnLasers(elapsedTime);
-		fireEnergy -= 4;
-	}
-
-	if (m_controlHandler.getRightTriggerValue() > .5f && fireEnergy > 0){
-		if (shootDelay > .5){
-			fireEnergy -= 4;
-			spawnLasers(elapsedTime);
-			shootDelay = 0;
+		if (shootDelay > .5){ //if delay is past time
+			spawnLasers(elapsedTime); 
+			fireEnergy -= 2; //reduce fire energy
+			shootDelay = 0;  //reset delay
 		}
 	}
-
+	//if controller back right trigger (RT for 360) is pressed past half way
+	if (m_controlHandler.getRightTriggerValue() > .5f && fireEnergy > 0){
+		if (shootDelay > .5){ //if delay is past time
+			fireEnergy -= 4;  //reduce fire energy
+			spawnLasers(elapsedTime); //spawn lasers
+			shootDelay = 0; //reset delay
+		}
+	}
+	//if controller back right trigger (RT for 360) is pressed below half way
 	if (m_controlHandler.getRightTriggerValue() < .5f && m_controlHandler.getRightTriggerValue() > .0f && fireEnergy > 0){
 		if (shootDelay > 1){
 			fireEnergy -= 2;
@@ -54,24 +55,20 @@ void cPlayer::update(float elapsedTime)
 		}
 	}
 
-	if (fireEnergy < 0) //make sure fireEnergy doesn't go below zero
-		fireEnergy = 0;
+	if (fireEnergy <= 0) //make sure fireEnergy doesn't go below zero
+		fireEnergy = 0; 
 	
-	if (fireEnergy > 100) //make sure fireEnergy doesn't go above 100
+	if (fireEnergy >= 100) //make sure fireEnergy doesn't go above 100
 		fireEnergy = 100;
-
-	if (m_controlHandler.getRightTriggerValue() == 0)
-		if (rechargeDelay > .5){
-			fireEnergy += 1;
-			rechargeDelay = 0;
+	//if the right trigger isn't pressed, or if the left mouse click isn't pressed
+	if ((isConnected && m_controlHandler.getRightTriggerValue() == 0) || !m_InputMgr->getLeftMouseBtn())
+		if (rechargeDelay > .5){ //delay 
+			fireEnergy += 2;  //increment fire energy
+			rechargeDelay = 0; //reset delay
 		}
 
 
-	/*
-	==============================================================
-	| Check for collisions
-	==============================================================
-	*/
+	//Check for collisions
 	for (vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin(); laserIterartor != theTardisLasers.end(); ++laserIterartor)
 	{
 		(*laserIterartor)->update(elapsedTime);
@@ -79,15 +76,15 @@ void cPlayer::update(float elapsedTime)
 		{
 			if ((*enemyIterator)->SphereSphereCollision((*laserIterartor)->getPosition(), (*laserIterartor)->getMdlRadius()))
 			{
-				// if a collision set the bullet and spaceship to false
+				// if a collision set the laser and spaceship to false
 				(*enemyIterator)->setIsActive(false);
 				(*laserIterartor)->setIsActive(false);
 				// play the explosion sound.
 				if (!isSoundOff)
 					m_SoundMgr->getSnd("Explosion")->playAudio(AL_TRUE);
 
-				if (m_controlHandler.getState() == true)
-					m_controlHandler.Vibrate(30000, 30000);
+				if (isConnected == true)
+					m_controlHandler.Vibrate(30000, 30000); //vibrate controller
 
 				hasCollided = true;
 			}
@@ -95,64 +92,60 @@ void cPlayer::update(float elapsedTime)
 	}
 
 	if (vibrateDelay > 2){ //delay timer for how long until vibration is stopped
-		if (m_controlHandler.getState() == true && hasCollided == true){
-			m_controlHandler.Vibrate(0, 0);
+		if (isConnected == true && hasCollided == true){ //check if collision has occured
+			m_controlHandler.Vibrate(0, 0); //turn off controller vibration
 			hasCollided = false;
 		}
-		vibrateDelay = 0;
+		vibrateDelay = 0; //reset delay
 	}
-
 
 	vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin();
 	while (laserIterartor != theTardisLasers.end())
 	{
-		if ((*laserIterartor)->isActive() == false)
+		if ((*laserIterartor)->isActive() == false) //check if laser is active
 		{
-			laserIterartor = theTardisLasers.erase(laserIterartor);
+			laserIterartor = theTardisLasers.erase(laserIterartor); //delete laser from collection
 		}
 		else
 		{
-			++laserIterartor;
+			++laserIterartor; //increment collection
 		}
 	}
 
 	vector<cEnemy*>::iterator enemyIterartor = theEnemy.begin();
-	while (enemyIterartor != theEnemy.end())
+	while (enemyIterartor != theEnemy.end()) //make sure not at end of collection
 	{
-		if ((*enemyIterartor)->isActive() == false)
+		if ((*enemyIterartor)->isActive() == false) //check if enemy is active
 		{
-			enemyIterartor = theEnemy.erase(enemyIterartor);
+			enemyIterartor = theEnemy.erase(enemyIterartor); //delete laser from collection
 		}
 		else
-		{
-			++enemyIterartor;
+		{ 
+			++enemyIterartor; //increment collection
 		}
 	}
 
-	// Find out what direction we should be thrusting, using rotation.
 
 	float angle;
 
-	if (m_controlHandler.getState() == true)
+	if (isConnected == true) //check controller connected
 		angle = glm::atan(m_controlHandler.getNormalisedLY(), m_controlHandler.getNormalisedLX()) * (180 / 3.14); //calculate left thumbstick angle
 	else
-		angle = glm::atan(mouseY - 768.f / 2, mouseX - 1024.f / 2) * (180 / 3.14); //calculate angle from screen width height and mouse position
+		angle = -glm::atan(m_InputMgr->getMouseYPos() - 768.f / 2, m_InputMgr->getMouseXPos() - 1024.f / 2) * (180 / 3.14); //calculate angle from screen width height and mouse position
 
 	glm::vec3 mdlVelocityAdd;
 	mdlVelocityAdd.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
-	mdlVelocityAdd.y = (float)glm::sin(glm::radians(m_mdlRotation));
+	mdlVelocityAdd.y = (float)glm::sin(glm::radians(m_mdlRotation));  //calculate direction
 	mdlVelocityAdd.z = 0.0f;
 
 	m_mdlRotation = angle; //pass angle to rotate model
-	mdlVelocityAdd *= translationZ;
+	mdlVelocityAdd *= translationZ; //change direction
 	m_mdlDirection += mdlVelocityAdd;
 
 	m_mdlPosition += m_mdlDirection * m_mdlSpeed * elapsedTime;
 	m_mdlDirection *= 0.95f;
 
 	translationZ = 0;
-	//translationY = 0;
-	lastKey = currentKey;
 
 	vibrateDelay += elapsedTime;
 	shootDelay += elapsedTime;
@@ -167,38 +160,31 @@ cPlayer::~cPlayer()
 void cPlayer::spawnLasers(float elapsedTime){
 
 	glm::vec3 mdlLaserDirection;
+	float angle = this->getRotation();
 	mdlLaserDirection.x = (float)glm::cos(glm::radians(m_mdlRotation));  // Remember to adjust for radians
 	mdlLaserDirection.y = (float)glm::sin(glm::radians(m_mdlRotation));
 	mdlLaserDirection.z = 0.0f;
 
-	if (currentKey == VK_RIGHT) //if facing right set fire direction right
-		mdlLaserDirection *= 1.0f;
-	else
-	if (currentKey == VK_LEFT) //same as above except left
-		mdlLaserDirection *= -1.0f;
+	mdlDimensions dimensions;
+	dimensions.s_mdldepth = 1;
+	dimensions.s_mdlheight = 0;
+	dimensions.s_mdlWidth = 0;
 
-	// Add new bullet sprite to the vector array
+	// Add new laser  to the vector array
 	theTardisLasers.push_back(new cLaser);
 	int numLasers = theTardisLasers.size() - 1;
 	theTardisLasers[numLasers]->setDirection(mdlLaserDirection);
-	theTardisLasers[numLasers]->setRotation(0.0f);
-	theTardisLasers[numLasers]->setScale(glm::vec3(1, 1, 1));
+	theTardisLasers[numLasers]->setRotation(90.0f);
+	theTardisLasers[numLasers]->setScale(glm::vec3(2, 2, 2));
 	theTardisLasers[numLasers]->setSpeed(20.0f);
 	theTardisLasers[numLasers]->setPosition(this->getPosition() + mdlLaserDirection);
 	theTardisLasers[numLasers]->setIsActive(true);
-	//theTardisLasers[numLasers]->setMdlDimensions(theLaser.getModelDimensions());
+	theTardisLasers[numLasers]->setMdlDimensions(dimensions);
 	theTardisLasers[numLasers]->update(elapsedTime);
+
 	// play the firing sound
 	if (!isSoundOff)
 		m_SoundMgr->getSnd("Shot")->playAudio(AL_TRUE);
-}
-
-void cPlayer::setMouseXPosition(int x){
-	mouseX = x;
-}
-
-void cPlayer::setMouseYPosition(int y){
-	mouseY = y;
 }
 
 bool cPlayer::getSoundOff(){
@@ -211,4 +197,8 @@ void cPlayer::setSoundOff(bool setSoundOff){
 
 int cPlayer::getFireEnergy(){
 	return fireEnergy;
+}
+
+void cPlayer::setControllerConnected(bool controlConnected){
+	isConnected = controlConnected;
 }

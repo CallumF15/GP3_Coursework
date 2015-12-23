@@ -15,7 +15,7 @@ void cTriangle::renderTri(float rotAngle)
 {
 	glRotatef(rotAngle, 0, 0, 1);
 
-	glBegin(GL_TRIANGLES);
+	glBegin(GL_TRIANGLES); //setup triangle vertices and colors
 		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 		glVertex3f(-1.0f, -0.5f, -4.0f);
 		glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
@@ -38,9 +38,9 @@ void cTriangle::setRotAngle(float rotAngle)
 void cTriangle::prepareTri(float dt)
 {
 	const float SPEED = 15.0f;
-	m_rotAngle += SPEED * dt;
+	m_rotAngle += SPEED * dt; //rotate triangle
 	if (m_rotAngle > 360.0f)
 	{
-		m_rotAngle -= 360.0f;
+		m_rotAngle -= 360.0f; //if it exceeds 360 angle, deduct 360
 	}
 }

@@ -11,7 +11,7 @@ public:
 	void loadModel(const char* mdlFilename);
 	void loadModel(const char* mdlFilename, GLuint textureID);
 	void loadModel(const char* mdlFilename, cTexture mdlTexture);
-	void renderMdl(glm::vec3 mdlPosition, float mdlRotationAngle, glm::vec3 mdlScale);
+	void renderMdl(glm::vec3 mdlPosition, float mdlRotationAngle, glm::vec3 mdlScale, int xRot, int yRot, int zRot);
 	mdlDimensions getModelDimensions();
 
 	~cModelLoader();

@@ -17,7 +17,7 @@ void cModelLoader::loadModel(const char* mdlFilename)
 
 void cModelLoader::loadModel(const char* mdlFilename, GLuint textureID)
 {
-	m_model = glmReadOBJ(mdlFilename);
+	m_model = glmReadOBJ(mdlFilename); //reads model description
 	glmUnitize(m_model);
 	glmFacetNormals(m_model);
 	glmVertexNormals(m_model, 180.0,false);
@@ -28,24 +28,24 @@ void cModelLoader::loadModel(const char* mdlFilename, GLuint textureID)
 
 void cModelLoader::loadModel(const char* mdlFilename, cTexture mdlTexture)
 {
-	m_model = glmReadOBJ(mdlFilename);
+	m_model = glmReadOBJ(mdlFilename); //reads model description
 
 	//glmUnitize(m_model);  // This will rescale the object to fit into the unity matrix
-	glmFacetNormals(m_model);
-	glmVertexNormals(m_model, 180.0f, false);
-	//glmLinearTexture(m_model);
-	m_TextureID = mdlTexture.getTexture();
-
+	glmFacetNormals(m_model); //set face normals
+	glmVertexNormals(m_model, 180.0f, false); //set vertex normals
+	m_TextureID = mdlTexture.getTexture(); //get texture id
+		
 	m_model->textures[m_model->numtextures - 1].id = m_TextureID;
 	m_model->textures[m_model->numtextures - 1].width = mdlTexture.getTWidth();
 	m_model->textures[m_model->numtextures - 1].height = mdlTexture.getTHeight();
 }
-void cModelLoader::renderMdl(glm::vec3 mdlPosition, float mdlRotationAngle, glm::vec3 mdlScale)
+
+void cModelLoader::renderMdl(glm::vec3 mdlPosition, float mdlRotationAngle, glm::vec3 mdlScale, int xRot, int yRot, int zRot)
 {
 	glPushMatrix();
 	//transformations here...
 	glTranslatef(mdlPosition.x, mdlPosition.y, -mdlPosition.z);
-	glRotatef(mdlRotationAngle, 0, 0, 1);
+	glRotatef(mdlRotationAngle, xRot, yRot, zRot);
 	glScalef(mdlScale.x, mdlScale.y, mdlScale.z);
 	glmDraw(m_model, GLM_TEXTURE | GLM_MATERIAL);  // GLM_SMOOTH | GLM_TEXTURE | GLM_MATERIAL
 	glPopMatrix();

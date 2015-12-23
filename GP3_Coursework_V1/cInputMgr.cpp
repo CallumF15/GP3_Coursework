@@ -19,9 +19,9 @@ cInputMgr* cInputMgr::getInstance()
 {
 	if (pInstance == NULL)
 	{
-		pInstance = new cInputMgr();
+		pInstance = new cInputMgr(); //initialize instance of input manager
 	}
-	return cInputMgr::pInstance;
+	return cInputMgr::pInstance; //return instance of input manager
 }
 
 /*
@@ -168,8 +168,6 @@ void cInputMgr::clearBuffers(BYTE bufferToClear)
 */
 void cInputMgr::mouseXY(LPARAM lParam, float x, float y)
 {
-	//mousePos.x = LOWORD(lParam);
-	//mousePos.y = HIWORD(lParam);
 	mousePos.x = x;
 	mousePos.y = y;
 }

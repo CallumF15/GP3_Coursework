@@ -8,7 +8,9 @@ cTexture.h
 #ifndef _CTEXTURE_H
 #define _CTEXTURE_H
 #include "GameConstants.h"
-#include "glx\glext.h"
+
+
+
 
 class cTexture
 {

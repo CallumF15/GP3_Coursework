@@ -81,24 +81,22 @@ int WINAPI WinMain(HINSTANCE hInstance,
     }
 
 
-	cCube cube;
-
 	// Create Texture map
-	cTexture tardisTexture;
-	tardisTexture.createTexture("Models/tardis.png");
+	cTexture shipTexture;
+	//tardisTexture.createTexture("Models/tardis.png");
+	shipTexture.createTexture("Models/testmodels/crono782.png");
+	cTexture planetTexture;
+	planetTexture.createTexture("Models/testmodels/planet/mat_pla3.png");
+
 	cTexture spaceShipTexture;
-	spaceShipTexture.createTexture("Models/SpaceShip/sh3.jpg");
+	//spaceShipTexture.createTexture("Models/SpaceShip/sh3.jpg");
+	spaceShipTexture.createTexture("Models/testmodels/ship/mat_ship.jpg");
+
 	cTexture laserTexture;
 	laserTexture.createTexture("Models/laser.tga");
 	cTexture starTexture;
 	starTexture.createTexture("Images/background.png");
 
-
-	cTexture cubeTexture;
-	cubeTexture.createTexture("Images/diceFaces.png");
-
-	// Create Materials for lights
-	cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
 
 	// Create Light
 	cLight sunLight(GL_LIGHT0, lightColour4(0, 0, 0, 1), lightColour4(1, 1, 1, 1), lightColour4(1, 1, 1, 1), glm::vec4(0, 0, 20, 1),
@@ -117,14 +115,16 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	// Load Fonts
 	LPCSTR gameFonts[3] = { "Fonts/digital-7.ttf", "Fonts/space age.ttf", "Fonts/doctor_who.ttf" };
 
+	//add fonts
 	theFontMgr->addFont("SevenSeg", gameFonts[0], 24);
 	theFontMgr->addFont("Space", gameFonts[1], 24);
 	theFontMgr->addFont("DrWho", gameFonts[2], 48);
 
 	// load game sounds
 	// Load Sound
-	LPCSTR gameSounds[3] = { "Audio/who10Edit.wav", "Audio/shot007.wav", "Audio/explosion2.wav" };
+	LPCSTR gameSounds[3] = { "Audio/ddtheme.wav", "Audio/shot007.wav", "Audio/explosion2.wav" };
 
+	//add sounds
 	theSoundMgr->add("Theme", gameSounds[0]);
 	theSoundMgr->add("Shot", gameSounds[1]);
 	theSoundMgr->add("Explosion", gameSounds[2]);
@@ -133,40 +133,43 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	theInputMgr->clearBuffers(theInputMgr->KEYS_DOWN_BUFFER | theInputMgr->KEYS_PRESSED_BUFFER);
 
 	// Model
-	cModelLoader tardisMdl;
-	tardisMdl.loadModel("Models/tardis.obj", tardisTexture); // Player
-	//tardisMdl.loadModel("Models/Stormtrooper/Stormtrooper.obj", tardisTexture); // Player
+	cModelLoader shipMdl;
+	//tardisMdl.loadModel("Models/tardis.obj", tardisTexture); // Player
+	shipMdl.loadModel("Models/testmodels/fighter1.obj", shipTexture); // Player
+
+	cModelLoader planetMdl;
+	planetMdl.loadModel("Models/testmodels/planet/pla3.obj", planetTexture);
 
 	cModelLoader spaceShipMdl;
 	spaceShipMdl.loadModel("Models/SpaceShip/Sample_Ship.obj", spaceShipTexture); // Enemy
+	//spaceShipMdl.loadModel("Models/testmodels/ship/spaceship01.obj", spaceShipTexture); // Enemy
 	
 	cModelLoader theLaser;
 	theLaser.loadModel("Models/laser.obj", laserTexture);
 
-	for (int loop = 0; loop < 5; loop++)
+	for (int loop = 0; loop < 30; loop++) //create number of enemies
 	{
 		theEnemy.push_back(new cEnemy);
-		theEnemy[loop]->randomise();
-		theEnemy[loop]->setMdlDimensions(spaceShipMdl.getModelDimensions());
-		theEnemy[loop]->setScale(glm::vec3(5, 5, 5));
+		theEnemy[loop]->randomise(); //set position and move direction
+		theEnemy[loop]->setMdlDimensions(spaceShipMdl.getModelDimensions()); 
+		theEnemy[loop]->setScale(glm::vec3(-8, 8, 8)); //set scale
 	}
 
-
-	cPlayer thePlayer;                                                                    //speed
-	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 1.0f, true);
-	thePlayer.setMdlDimensions(tardisMdl.getModelDimensions());
-	thePlayer.attachInputMgr(theInputMgr);
-	thePlayer.attachSoundMgr(theSoundMgr);
+	cPlayer thePlayer;                                                                      //speed
+	thePlayer.initialise(glm::vec3(0, 0, 0), 0.0f, glm::vec3(-.2, .4, .2), glm::vec3(0, 0, 0), 3.0f, true);
+	thePlayer.setMdlDimensions(shipMdl.getModelDimensions());
+	thePlayer.attachInputMgr(theInputMgr); //attach input manager
+	thePlayer.attachSoundMgr(theSoundMgr); //attach sound manager
 
 	cCamera debugCamera, gameCamera;
-	gameCamera.setTheCameraPos(glm::vec3(0.0f, 0.0f, 75.0f));
-	gameCamera.setTheCameraLookAt(glm::vec3(0.0f, 0.0f, 90.0f)); //rotate to face tardis/player
+	gameCamera.setTheCameraPos(glm::vec3(0.0f, 0.0f, 75.0f)); 
+	gameCamera.setTheCameraLookAt(glm::vec3(0.0f, 0.0f, 90.0f)); //rotate to face player
 	gameCamera.setTheCameraUpVector(glm::vec3(0.0f, 1.0f, 0.0f)); // pointing upwards in world space
-	gameCamera.setTheCameraAspectRatio(windowWidth, windowHeight);
+	gameCamera.setTheCameraAspectRatio(windowWidth, windowHeight); //set camera ratio to window size
 	gameCamera.setTheProjectionMatrix(45.0f, gameCamera.getTheCameraAspectRatio(), 0.1f, 1000.0f);
-	gameCamera.update();
+	gameCamera.update(); 
 
-	debugCamera = gameCamera;
+	debugCamera = gameCamera; //set debugCamera to gameCameras values
 
 	float tCount = 0.0f;
 	string outputMsg;
@@ -176,10 +179,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	std::vector<cLaser*>::iterator index;
 
 
-	cube.initialise(cubeTexture);
-
 	bool toggleCamera = false;
 	ControllerHandler cHandler;
+	//set number of players to 1
 	cHandler.setNumberPlayers(1);
 
 	cSphere theEarth(3, 30, 30);
@@ -190,8 +192,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	theEarth.initialise(earthTexture.getTexture(), glm::vec3(0, 0, -10), glm::vec3(0, 0, 0));
 	float earthRotSpeed = 3.0f;
 
-	// cMaterial sunMaterial(lightColour4(0.0f, 0.0f, 0.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 5.0f);
-	//cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), 50.f);
 	cMaterial earthMaterial(lightColour4(0.2f, 0.2f, 0.2f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(1.0f, 1.0f, 1.0f, 1.0f), lightColour4(0, 0, 0, 1.0f), .1f);
 
    //This is the mainloop, we render frames until isRunning returns false
@@ -200,25 +200,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		pgmWNDMgr->processWNDEvents(); //Process any window events
 
 		if (cHandler.getState() == true){ //check controller is connected
-			//cHandler.Vibrate(65000.0f, 65000.0f);
-			thePlayer.attachControllerHander(cHandler);
-			cHandler.CheckDeadZones();
-			//cHandler.CheckControllerInput();
-		}
-		else{
-			//turn off vibrations
-		}
-
-		thePlayer.setMouseXPosition(theInputMgr->getMouseXPos());
-		thePlayer.setMouseYPosition(theInputMgr->getMouseYPos());
+			thePlayer.attachControllerHander(cHandler); //attach controller to player class
+			thePlayer.setControllerConnected(true);
+			cHandler.CheckDeadZones(); //check deadzones
+		}else
+			thePlayer.setControllerConnected(false);
 
 		if (theInputMgr->isKeyDown(VK_END)){ //toggleCamera to debug or game camera
 			toggleCamera = !toggleCamera;
 		}else
 		if (theInputMgr->isKeyDown(VK_TAB) && thePlayer.getSoundOff() != true){ //turns off sound or pauses it
-			thePlayer.setSoundOff(true);
-			theSoundMgr->getSnd("Theme")->pauseAudio();
-			theSoundMgr->getSnd("Shot")->stopAudio();
+			thePlayer.setSoundOff(true);  //let player class know sound is off
+			theSoundMgr->getSnd("Theme")->pauseAudio(); //pause audio
+			theSoundMgr->getSnd("Shot")->stopAudio();  //stop audio
 			theSoundMgr->getSnd("Explosion")->stopAudio();
 		}else
 		if (theInputMgr->isKeyDown(VK_CAPITAL) && thePlayer.getSoundOff() != false){
@@ -231,76 +225,79 @@ int WINAPI WinMain(HINSTANCE hInstance,
 			int mouseY = theInputMgr->getMouseYPos();
 			glm::vec2 mousePos = glm::vec2(mouseX, mouseY); 
 			debugCamera.movement(theInputMgr); 
-			debugCamera.mouseUpdate(mousePos);
+			debugCamera.mouseUpdate(mousePos); //pass mouse position to camera
 			debugCamera.Update2(); //update camera
 		}
 		else{ //use default game camera behavior instead
-			gameCamera.trackPlayer(glm::vec3(thePlayer.getPosition().x, thePlayer.getPosition().y, 75.0f));
+			gameCamera.trackPlayer(glm::vec3(thePlayer.getPosition().x, thePlayer.getPosition().y, 75.0f)); //camera follow player on X and Y plane
 			gameCamera.Update2();
 		}
+
         //We get the time that passed since the last frame
 		float elapsedTime = pgmWNDMgr->getElapsedSeconds();
 		
-		// Lab code goes here
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		theOGLWnd.initOGL(windowWidth,windowHeight);
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear depth/color buffers
+		theOGLWnd.initOGL(windowWidth,windowHeight); //
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
 		if (toggleCamera)
-			glLoadMatrixf((GLfloat*)&debugCamera.getTheViewMatrix());
+			glLoadMatrixf((GLfloat*)&debugCamera.getTheViewMatrix()); //get view matrix for debug camera
 		else
-			glLoadMatrixf((GLfloat*)&gameCamera.getTheViewMatrix());
+			glLoadMatrixf((GLfloat*)&gameCamera.getTheViewMatrix()); //get view matrix for game camera
 
-		sunMaterial.useMaterial();
-		sunLight.lightOn();
+		sunLight.lightOn(); //set lights on
 		lfLight.lightOn();
 		rfLight.lightOn();
 		cbLight.lightOn();
 
-		theEarth.setRotAngle(theEarth.getRotAngle() + (earthRotSpeed*elapsedTime));
+		theEarth.setRotAngle(theEarth.getRotAngle() + (earthRotSpeed*elapsedTime)); //rotate planet
 		theEarth.prepare(theEarth.getRotAngle()); //Do any pre-rendering logic
 		earthMaterial.useMaterial();				// Set the material for use
 		theEarth.render(theEarth.getRotAngle()); //Render the scene
 
-		for (vector<cEnemy*>::iterator enemyIterator = theEnemy.begin(); enemyIterator != theEnemy.end(); ++enemyIterator)
+		//check if enemy is active and render
+		for (vector<cEnemy*>::iterator enemyIterator = theEnemy.begin(); enemyIterator != theEnemy.end(); ++enemyIterator) 
 		{
-			if ((*enemyIterator)->isActive())
+			if ((*enemyIterator)->isActive()) //check if enemy is active, if so, render/update enemy
 			{
-				spaceShipMdl.renderMdl(glm::vec3((*enemyIterator)->getPosition().x, (*enemyIterator)->getPosition().y, 0.0f), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
-				//spaceShipMdl.renderMdl((*enemyIterator)->getPosition(), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale());
+				spaceShipMdl.renderMdl(glm::vec3((*enemyIterator)->getPosition().x, (*enemyIterator)->getPosition().y, 0.0f), (*enemyIterator)->getRotation(), (*enemyIterator)->getScale(), 0, 0, 1);
 				(*enemyIterator)->update(elapsedTime);
 			}
 		}
 
-		tardisMdl.renderMdl(thePlayer.getPosition(), thePlayer.getRotation(), thePlayer.getScale());
-		if (!toggleCamera)
+		shipMdl.renderMdl(thePlayer.getPosition(), thePlayer.getRotation(), thePlayer.getScale(), 0, 0, 1); //render player
+		planetMdl.renderMdl(glm::vec3(10, 0, 20), theEarth.getRotAngle() + (earthRotSpeed*elapsedTime), glm::vec3(.2, .2, .2), 0, 0, 1); //render planet
+
+		if (!toggleCamera) //if camera toggled, disable updating player movement
 		thePlayer.update(elapsedTime);
 		
+		//check if laser is active and render
 		for (vector<cLaser*>::iterator laserIterartor = theTardisLasers.begin(); laserIterartor != theTardisLasers.end(); ++laserIterartor)
 		{
-			if ((*laserIterartor)->isActive())
+			if ((*laserIterartor)->isActive()) //if laser is active
 			{
-				theLaser.renderMdl((*laserIterartor)->getPosition(), (*laserIterartor)->getRotation(), (*laserIterartor)->getScale());
-				(*laserIterartor)->update(elapsedTime);
+				theLaser.renderMdl((*laserIterartor)->getPosition(), (*laserIterartor)->getRotation(), (*laserIterartor)->getScale(), 0, 1, 0); //render laser
+				(*laserIterartor)->update(elapsedTime); //updatr laser
 			}
 		}
 
 		outputMsg = to_string(theEnemy.size()); // convert float to string
-		string energyMsg = "Energy: " + to_string(thePlayer.getFireEnergy());
+		string energyMsg = "Energy: " + to_string(thePlayer.getFireEnergy()); //convert int to string
 		
 		
 		glPushMatrix();
-		theOGLWnd.setOrtho2D(windowWidth, windowHeight);
+		theOGLWnd.setOrtho2D(windowWidth, windowHeight); //change camera to orthographic for displaying text
 		theFontMgr->getFont("DrWho")->printText("Tardis Wars", FTPoint(10, 35, 0.0f), colour3f(0.0f,255.0f,0.0f));
 		theFontMgr->getFont("DrWho")->printText(outputMsg.c_str(), FTPoint(850, 35, 0.0f), colour3f(255.0f, 255.0f, 0.0f)); // uses c_str to convert string to LPCSTR
 		theFontMgr->getFont("DrWho")->printText(energyMsg.c_str(), FTPoint(800, 750, 0.0f), colour3f(255.0f, 255.0f, 0.0f));
 		glPopMatrix();
 
 
-		pgmWNDMgr->swapBuffers();
+		pgmWNDMgr->swapBuffers(); //swap buffers
 		
-		tCount += elapsedTime;
+		tCount += elapsedTime; //count time.
 
 		//Clear key buffers
 		theInputMgr->clearBuffers(theInputMgr->KEYS_DOWN_BUFFER | theInputMgr->KEYS_PRESSED_BUFFER);

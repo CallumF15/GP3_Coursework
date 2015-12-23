@@ -115,7 +115,7 @@ glm::mat4 cCamera::getTheViewMatrix()
 }
 
 void cCamera::setCamViewMatrix()
-{												//changed code below
+{												
 	m_camViewMatrix = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraDirection, m_cameraUpVector);
 }
 
@@ -133,64 +133,62 @@ void cCamera::update()
 	setCamViewMatrix();
 }
 
+//Updates camera view matrix and projection
 void cCamera::Update2(){
 	setTheProjectionMatrix(45.0f, getTheCameraAspectRatio(), 0.1f, 1000.0f);
 	setCamViewMatrix();
 }
 
+//determines which way the camera should be facing based on mouse position
 void cCamera::mouseUpdate(const glm::vec2& newMousePos)
 {
-	glm::vec2 mouseDelta = newMousePos - oldMousePos;
+	glm::vec2 mouseDelta = newMousePos - oldMousePos; //calculate mouse delta
 
-	if (glm::length(mouseDelta) > 50.0f){
+	if (glm::length(mouseDelta) > 50.0f){ //make sure camera moves smooth
 		oldMousePos = newMousePos;
 		return;
 	}
 
-	const float ROTATIONAL_SPEED = 0.01f;
+	const float ROTATIONAL_SPEED = 0.01f; //speed to rotate camera
 
-	strafedirection = glm::normalize(glm::cross(m_cameraDirection, m_cameraUpVector));
-	glm::mat4 rotator = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * ROTATIONAL_SPEED, m_cameraUpVector) *
+	strafedirection = glm::normalize(glm::cross(m_cameraDirection, m_cameraUpVector)); //calculate strafe direction
+	glm::mat4 rotator = glm::rotate(glm::mat4(1.0f), -mouseDelta.x * ROTATIONAL_SPEED, m_cameraUpVector) *  //calculate rotation
 		glm::rotate(glm::mat4(1.0f), -mouseDelta.y * ROTATIONAL_SPEED, strafedirection);
 
-	m_cameraDirection = glm::mat3(rotator) * m_cameraDirection;
+	m_cameraDirection = glm::mat3(rotator) * m_cameraDirection; //calculate direction
 
-	oldMousePos = newMousePos;
+	oldMousePos = newMousePos; //assign mouse position for comparing
 }
 
-//Passed in variable determines which sort of movement occurs and
-//calls the appropriate enum of type MovementType and either calculates
-//or calls appropriate method
+//Passed in variable determines what key input in order to 
+//move the camera appropriately
 void cCamera::movement(cInputMgr* inputMgr)
 {
-	if (inputMgr->isKeyDown(VK_UP))//forward
+	if (inputMgr->isKeyDown(VK_UP))//move camera forward
 	{
-		m_cameraPos += 1.0f * m_cameraDirection;
+		m_cameraPos += 1.0f * m_cameraDirection; 
 	}
-	if (inputMgr->isKeyDown(VK_DOWN)) //backward
+	if (inputMgr->isKeyDown(VK_DOWN)) //move camera backwards
 	{
 		m_cameraPos += -1.0f * m_cameraDirection;
 	}
-
-	if (inputMgr->isKeyDown(VK_RIGHT))
+	if (inputMgr->isKeyDown(VK_RIGHT))//move camera right in facing direction
 	{
 		strafeRight();
 	}
-	if (inputMgr->isKeyDown(VK_LEFT))
+	if (inputMgr->isKeyDown(VK_LEFT))//move camera left in facing direction
 	{
 		strafeLeft();
 	}
-
-
-	if (inputMgr->isKeyDown(VK_INSERT)) //up movement
+	if (inputMgr->isKeyDown(VK_INSERT)) // //move camera up
 	{
 		m_cameraPos += 1.0f * m_cameraUpVector;
 	}
-	if (inputMgr->isKeyDown(VK_DELETE)) //down movement
+	if (inputMgr->isKeyDown(VK_DELETE)) //move camera down
 	{
 		m_cameraPos -= 1.0f * m_cameraUpVector;
 	}
-	if (inputMgr->isKeyDown(VK_HOME)){
+	if (inputMgr->isKeyDown(VK_HOME)){ //reset camera position and facing direction
 		m_cameraPos = glm::vec3(0, 0, 0);
 		m_cameraDirection = glm::vec3(0.0, 0.0, -1.0f);
 	}
@@ -198,15 +196,16 @@ void cCamera::movement(cInputMgr* inputMgr)
 
 //Calculates movement to the left
 void cCamera::strafeLeft(){
-	m_cameraPos -= 1.0f * strafedirection;
+	m_cameraPos -= 1.0f * strafedirection; //calculates movement to left with camera direction
 }
 
 //Calculates movement to the Right
 void cCamera::strafeRight()
 {
-	m_cameraPos += 1.0f * strafedirection;
+	m_cameraPos += 1.0f * strafedirection; //calculates movement to right with camera direction
 }
 
+//sets camera to follow player on all planes
 void cCamera::trackPlayer(glm::vec3 playerPosition){
 
 	m_cameraPos = glm::vec3(playerPosition.x, playerPosition.y, playerPosition.z);

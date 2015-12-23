@@ -15,9 +15,12 @@ private:
 public:
 
 	bool isSoundOff;
-	float m_tCount;
 	bool hasCollided;
+	bool isConnected;
 
+	float vibrateDelay, shootDelay, rechargeDelay, laserFadeDelay;
+
+	int getFireEnergy();
 	int fireEnergy;
 
 	cPlayer();
@@ -30,18 +33,6 @@ public:
 
 	bool getSoundOff();
 	void setSoundOff(bool setSoundOff);
-
-
-	int lastKey, currentKey;
-	float vibrateDelay, shootDelay, rechargeDelay;
-
-	int getFireEnergy();
-
-	//Mouse Related Variables
-	int mouseX;
-	int mouseY;
-
-	void setMouseXPosition(int x);
-	void setMouseYPosition(int y);
+	void setControllerConnected(bool controlConnected);
 };
 #endif

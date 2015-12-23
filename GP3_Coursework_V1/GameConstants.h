@@ -69,8 +69,10 @@ struct mdlDimensions{
 	float s_mdlWidth, s_mdlheight, s_mdldepth;
 };
 
-const float PLAYFIELDX = 100.0f;
-const float PLAYFIELDZ = 100.0f;
+const float PLAYFIELDX = 50.0f;
+const float PLAYFIELDZ = 50.0f;
+//const float PLAYFIELDX = 100.0f;
+//const float PLAYFIELDZ = 100.0f;
 
 extern int drawMode;
 extern float rotationAngle;

@@ -14,10 +14,9 @@ cCube::cCube()
 
 void cCube::render(float rotAngle)
 {
-	//glRotatef(rotAngle, 0.0f, 1.0f, 0.0f); 
-	glEnable(GL_TEXTURE_2D);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY); // Lab 2/3
+	glEnable(GL_TEXTURE_2D); //enable texture
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY); 
 
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glTexCoordPointer(2, GL_FLOAT, 0,0);
@@ -25,13 +24,14 @@ void cCube::render(float rotAngle)
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY); // Lab 2/3
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY); 
 
-	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D); //disable texture
 }
 
-void cCube::loadTextureCoords()   // Lab 2/3
+void cCube::loadTextureCoords()  
 {
+	//position texture coordinates
 	m_TextureIndices[0] = glm::vec2(0.0f, 0.0f);
 	m_TextureIndices[1] = glm::vec2(1.0f, 0.0f);
 	m_TextureIndices[2] = glm::vec2(1.0f, 1.0f);
@@ -65,6 +65,7 @@ void cCube::loadTextureCoords()   // Lab 2/3
 
 void cCube::initialise(cTexture theTexture)
 {
+	//position vertices
 	m_topLeftFront = glm::vec3(-1.0f, 1.0f, 1.0f);
 	m_bottomLeftFront = glm::vec3(-1.0f, -1.0f, 1.0f);
 	m_topRightFront = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -86,6 +87,7 @@ void cCube::initialise(cTexture theTexture)
 	m_vertices.push_back(m_topRightBack);
 	m_vertices.push_back(m_topRightFront);
 
+	//Create cube faces
 	m_Indices[0] = 0; // red front face 
 	m_Indices[1] = 2;
 	m_Indices[2] = 3;
@@ -128,11 +130,9 @@ void cCube::initialise(cTexture theTexture)
 	m_Indices[34] = 3;
 	m_Indices[35] = 7;
 
-	// Call loadTextureCoords() - Lab 2/3
 	loadTextureCoords();
 
 	// Assign variables that will be used to store the unique object ID’s that will be used to refer to the two buffers. 
-
 	glGenBuffers = (PFNGLGENBUFFERSARBPROC)wglGetProcAddress("glGenBuffers");
 	glBindBuffer = (PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer");
 	glBufferData = (PFNGLBUFFERDATAPROC)wglGetProcAddress("glBufferData");
@@ -152,14 +152,13 @@ void cCube::initialise(cTexture theTexture)
 
 	glBindTexture(GL_TEXTURE_2D, theTexture.getTexture());
 
-	// Lab 2/3
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferObjects[2]);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferObjects[2]); //bind buffer
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
 	//Bind the vertex array and set the vertex pointer to point at it 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferObjects[0]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 
-	glTranslatef(0.0f, 0.0f, 75.0f);
-	glRotatef(30.0f, 0.0f, 1.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, 75.0f); //translate cube on Z plane
+	glRotatef(30.0f, 0.0f, 1.0f, 0.0f); //rotate cube on Y plane
 }
